@@ -8,7 +8,7 @@ export async function POST() {
     maxAge: 0,
     sameSite: "strict" as const,
   };
-  response.cookies.set("management_access", "", options);
+  response.cookies.set("management_session", "", options);
   response.cookies.set("user_id", "", options);
   return response;
 }
