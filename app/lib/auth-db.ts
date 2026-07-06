@@ -3,27 +3,50 @@ import mysql from "mysql2/promise";
 
 let pool: mysql.Pool | null = null;
 let ready: Promise<void> | null = null;
+let appInitStarted = false;
 
 function getPool() {
   if (!pool) {
     pool = mysql.createPool({
-      host: process.env.Host,
-      port: Number(process.env.Port || 3306),
-      user: process.env.Username,
-      password: process.env.Password,
-      database: process.env.Database,
+      host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
+      port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),
+      user: getEnv("DB_USER", "MYSQL_USER", "Username"),
+      password: getEnv("DB_PASSWORD", "MYSQL_PASSWORD", "Password"),
+      database: getEnv("DB_NAME", "MYSQL_DATABASE", "Database"),
       waitForConnections: true,
       connectionLimit: 10,
+      connectTimeout: 3000,
     });
   }
 
   return pool;
 }
 
+function getEnv(...names: string[]) {
+  for (const name of names) {
+    const value = process.env[name]?.trim();
+    if (value) return value;
+  }
+
+  return undefined;
+}
+
+export function initAuthDatabaseOnce() {
+  if (appInitStarted) return;
+  appInitStarted = true;
+
+  ensureUsersTable().catch((error) => {
+    const err = error as { code?: string; message?: string };
+    console.error(`Auth database init failed: ${err.code || err.message || "unknown error"}`);
+  });
+}
+
 export async function ensureUsersTable() {
   if (!ready) {
     ready = initializeAuthDatabase().catch((error) => {
       ready = null;
+      pool?.end().catch(() => undefined);
+      pool = null;
       throw error;
     });
   }
@@ -75,6 +98,24 @@ async function seedSuperAdmin() {
   if (!email || !password) return;
 
   const db = getPool();
+  const passwordHash = hashPassword(password);
+  const [envUsers] = await db.execute<mysql.RowDataPacket[]>(
+    "SELECT id FROM users WHERE email = ? LIMIT 1",
+    [email],
+  );
+
+  if (envUsers.length > 0) {
+    const superAdminId = envUsers[0].id;
+    await db.execute("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
+      superAdminId,
+    ]);
+    await db.execute(
+      "UPDATE users SET role = 'super_admin', password_hash = ? WHERE id = ?",
+      [passwordHash, superAdminId],
+    );
+    return;
+  }
+
   const [admins] = await db.execute<mysql.RowDataPacket[]>(
     "SELECT id FROM users WHERE role = 'super_admin' ORDER BY id ASC",
   );
@@ -84,18 +125,9 @@ async function seedSuperAdmin() {
     await db.execute("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
       firstAdmin.id,
     ]);
-    return;
-  }
-
-  const [existingUsers] = await db.execute<mysql.RowDataPacket[]>(
-    "SELECT id FROM users WHERE email = ? LIMIT 1",
-    [email],
-  );
-
-  if (existingUsers.length > 0) {
     await db.execute(
-      "UPDATE users SET role = 'super_admin', password_hash = ? WHERE id = ?",
-      [hashPassword(password), existingUsers[0].id],
+      "UPDATE users SET email = ?, password_hash = ? WHERE id = ?",
+      [email, passwordHash, firstAdmin.id],
     );
     return;
   }
@@ -103,7 +135,7 @@ async function seedSuperAdmin() {
   await db.execute(
     `INSERT INTO users (nid_number, nid_name, date_of_birth, phone, email, password_hash, role)
      VALUES (?, ?, ?, ?, ?, ?, 'super_admin')`,
-    ["SUPER_ADMIN", "Super Admin", "1970-01-01", "SUPER_ADMIN", email, hashPassword(password)],
+    ["SUPER_ADMIN", "Super Admin", "1970-01-01", "SUPER_ADMIN", email, passwordHash],
   );
 }
 

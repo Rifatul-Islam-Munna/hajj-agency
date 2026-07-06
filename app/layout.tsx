@@ -3,7 +3,7 @@ import { Lexend } from "next/font/google";
 
 import ScrollToTop from './layouts/backToTop';
 import Preloader from "./layouts/preloader";
-import { ensureUsersTable } from "./lib/auth-db";
+import { initAuthDatabaseOnce } from "./lib/auth-db";
 
 const lexend = Lexend({
   subsets: ["latin"],
@@ -22,9 +22,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  ensureUsersTable().catch((error) => {
-    console.error("Auth database init failed", error);
-  });
+  initAuthDatabaseOnce();
 
   return (
     <html lang="en" className={lexend.variable}>
