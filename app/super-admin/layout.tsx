@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { getManagementUser } from "../lib/access-control";
 import { CMS_PAGES } from "../lib/cms-config";
 import LogoutButton from "./logoutButton";
-import "./admin.css";
+import "../admin-panel.css";
 
 export default async function SuperAdminLayout({ children }: { children: ReactNode }) {
   const session = await getManagementUser();
