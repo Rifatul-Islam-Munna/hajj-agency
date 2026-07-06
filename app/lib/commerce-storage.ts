@@ -166,7 +166,11 @@ async function seedDefaults() {
      (package_id, category_id, base_price, currency, pricing_mode, min_travellers, max_travellers, deposit_amount, booking_enabled)
      SELECT p.id,
        CASE WHEN LOWER(p.category) LIKE '%umrah%' THEN 2 ELSE 1 END,
-       CAST(REPLACE(REPLACE(REPLACE(REPLACE(p.price, '৳', ''), ',', ''), 'BDT', ''), ' ', '') AS DECIMAL(12,2)),
+       CASE
+         WHEN REGEXP_REPLACE(p.price, '[^0-9.]', '') REGEXP '^[0-9]+(\\.[0-9]+)?$'
+         THEN CAST(REGEXP_REPLACE(p.price, '[^0-9.]', '') AS DECIMAL(12,2))
+         ELSE 0
+       END,
        'BDT', 'per_person', 1, 10, 0, 1
      FROM packages p`,
   );
