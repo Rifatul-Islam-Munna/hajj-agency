@@ -5,3 +5,26 @@
 .cms-rich-content p { margin-bottom: 1rem; }
 .cms-rich-content ul, .cms-rich-content ol { padding-left: 1.5rem; margin-bottom: 1rem; }
 .cms-rich-content blockquote { border-left: 4px solid #0f6b4f; padding-left: 1rem; font-style: italic; }
+.package-category-nav { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+.package-category-nav a { padding:10px 18px; border:1px solid #d4dfda; border-radius:999px; color:#164f3d; font-weight:700; text-decoration:none; background:#fff; }
+.package-category-nav a:hover { background:#164f3d; border-color:#164f3d; color:#fff; }
+.package-booking-panel { margin-top:22px; padding-top:20px; border-top:1px solid #e1e7e4; }
+.package-booking-panel .form-group { margin:15px 0; }
+.package-booking-panel select { width:100%; border:1px solid #d1dbd7; border-radius:8px; padding:11px; background:#fff; }
+.package-booking-total { display:flex; justify-content:space-between; align-items:center; padding:14px 0; font-size:17px; border-top:1px solid #e6ece9; border-bottom:1px solid #e6ece9; }
+.package-booking-note { margin:12px 0; font-size:13px; color:#66756e; }
+.order-confirmation-card { max-width:760px; margin:0 auto; text-align:center; background:#fff; border:1px solid #e1e8e5; border-radius:18px; padding:42px; box-shadow:0 15px 45px rgba(20,60,46,.07); }
+.order-confirmation-icon { width:76px; height:76px; border-radius:50%; display:grid; place-items:center; margin:0 auto 18px; font-size:28px; }
+.order-confirmation-icon.success { background:#dbf7e8; color:#087443; }
+.order-confirmation-icon.pending { background:#fff0c7; color:#946300; }
+.order-confirmation-summary { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:24px; text-align:left; }
+.order-confirmation-summary > div { padding:14px; background:#f6faf8; border-radius:10px; display:grid; gap:4px; }
+.order-confirmation-summary span { color:#68776f; font-size:12px; }
+.booking-empty { padding:50px 20px; text-align:center; border:1px dashed #cbd9d3; border-radius:15px; background:#fbfdfc; }
+.checkout-form + .checkout-form { margin-top:24px; }
+.checkout-form h2 { margin-bottom:20px; }
+.checkout-form .form-group input, .checkout-form .form-group select, .checkout-form .form-group textarea { width:100%; border:1px solid #d5dfda; border-radius:8px; padding:12px 14px; background:#fff; }
+.checkout-form .form-group label { display:block; font-weight:700; margin-bottom:7px; }
+.checkout-form .form-group label span { color:#c0392b; margin-left:3px; }
+.checkout-form .form-group small { display:block; color:#6f7d76; margin-top:5px; }
+@media(max-width:767px){.order-confirmation-card{padding:28px 18px}.order-confirmation-summary{grid-template-columns:1fr}}
