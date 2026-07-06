@@ -12,8 +12,8 @@ export const headerDefaults: SiteSettings = {
   topbar_address: "3500 Lenox Road, USA",
   sunrise_text: "Sunrise At: 5.30 AM",
   sunset_text: "Sunset At: 5.30 PM",
-  cta_text: "View Packages",
-  cta_url: "/packages",
+  cta_text: "Join Now",
+  cta_url: "/register",
   nav_items: [
     { id: "home", label: "Home", url: "/", enabled: true, children: [] },
     { id: "about", label: "About", url: "/about", enabled: true, children: [] },
