@@ -1,0 +1,1 @@
+Synchronize the npm dependency lockfile for the rich text editor and icon packages.
