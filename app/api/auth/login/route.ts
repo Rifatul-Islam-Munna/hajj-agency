@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
-import { query, verifyPassword } from "@/app/lib/auth-db";
+import { query, verifyPassword } from "../../../lib/auth-db";
 
 interface UserRow extends RowDataPacket {
   id: number;
@@ -16,7 +16,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const identifier = String(body.identifier || "").trim().toLowerCase();
     const password = String(body.password || "");
-
     if (!identifier || !password) {
       return NextResponse.json({ message: "Phone/email and password required" }, { status: 400 });
     }
@@ -25,26 +24,32 @@ export async function POST(request: Request) {
       "SELECT id, nid_name, email, phone, role, password_hash FROM users WHERE email = ? OR phone = ? LIMIT 1",
       [identifier, identifier],
     );
-
     const user = users[0];
     if (!user || !verifyPassword(password, user.password_hash)) {
       return NextResponse.json({ message: "Invalid login" }, { status: 401 });
     }
 
+    const isManager = user.role === "super_admin";
     const response = NextResponse.json({
       message: "Login successful",
+      redirect: isManager ? "/super-admin" : "/",
       user: { id: user.id, name: user.nid_name, email: user.email, phone: user.phone, role: user.role },
     });
-
-    response.cookies.set("user_id", String(user.id), {
+    const cookieOptions = {
       httpOnly: true,
-      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict" as const,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
+    };
+    response.cookies.set("user_id", String(user.id), cookieOptions);
+    response.cookies.set("management_access", isManager ? "allowed" : "", {
+      ...cookieOptions,
+      maxAge: isManager ? cookieOptions.maxAge : 0,
     });
-
     return response;
-  } catch {
+  } catch (error) {
+    console.error(error);
     return NextResponse.json({ message: "Login failed" }, { status: 500 });
   }
 }
