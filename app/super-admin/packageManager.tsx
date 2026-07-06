@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus, Save, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { PackageRecord } from "../lib/cms-db";
 import PackageFields from "./packageFields";
@@ -21,6 +22,14 @@ const emptyPackage: PackageRecord = {
   featured: false,
   enabled: true,
   sort_order: 0,
+  seo_title: "",
+  seo_description: "",
+  seo_keywords: "",
+  canonical_url: "",
+  og_image: "",
+  robots_index: true,
+  robots_follow: true,
+  structured_data: "",
 };
 
 export default function PackageManager({ initialPackages }: { initialPackages: PackageRecord[] }) {
@@ -30,9 +39,7 @@ export default function PackageManager({ initialPackages }: { initialPackages: P
   const [busyId, setBusyId] = useState<number | "new" | null>(null);
 
   function patchItem(index: number, patch: Partial<PackageRecord>) {
-    setItems((current) => current.map((item, itemIndex) =>
-      itemIndex === index ? { ...item, ...patch } : item,
-    ));
+    setItems((current) => current.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item));
   }
 
   async function saveItem(item: PackageRecord, index?: number) {
@@ -76,19 +83,19 @@ export default function PackageManager({ initialPackages }: { initialPackages: P
 
   return (
     <div>
-      <h1 className="admin-title">Packages</h1>
-      <p className="admin-subtitle">Manage the Hajj and Umrah packages shown across the website.</p>
+      <h1 className="admin-title">Hajj & Umrah Packages</h1>
+      <p className="admin-subtitle">Manage package content, rich descriptions, images and complete SEO without changing the public design.</p>
       {message && <div className="admin-notice" style={{ marginTop: 18 }}>{message}</div>}
 
-      <div className="admin-section-card" style={{ marginTop: 24 }}>
-        <h3>Add new package</h3>
+      <details className="admin-section-card admin-create-panel" style={{ marginTop: 24 }}>
+        <summary><Plus size={19} /> Add new package</summary>
         <PackageFields item={draft} onChange={(patch) => setDraft((current) => ({ ...current, ...patch }))} />
         <div className="admin-actions" style={{ marginTop: 16 }}>
           <button className="admin-button" disabled={busyId === "new"} onClick={() => saveItem(draft)}>
-            {busyId === "new" ? "Adding..." : "Add Package"}
+            <Plus size={17} /> {busyId === "new" ? "Adding..." : "Add Package"}
           </button>
         </div>
-      </div>
+      </details>
 
       <div className="admin-package-list">
         {items.map((item, index) => (
@@ -109,10 +116,10 @@ export default function PackageManager({ initialPackages }: { initialPackages: P
             <PackageFields item={item} onChange={(patch) => patchItem(index, patch)} />
             <div className="admin-actions" style={{ marginTop: 16 }}>
               <button className="admin-button" disabled={busyId === item.id} onClick={() => saveItem(item, index)}>
-                {busyId === item.id ? "Saving..." : "Save"}
+                <Save size={17} /> {busyId === item.id ? "Saving..." : "Save"}
               </button>
               <button className="admin-button danger" disabled={busyId === item.id} onClick={() => removeItem(item)}>
-                Delete
+                <Trash2 size={17} /> Delete
               </button>
             </div>
           </div>

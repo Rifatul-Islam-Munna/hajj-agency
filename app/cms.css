@@ -1,3 +1,7 @@
 .cms-section-wrapper { display: contents; }
 .cms-managed-button { background-color: var(--cms-button-bg) !important; border-color: var(--cms-button-bg) !important; }
 .cms-managed-button:hover { background-color: var(--cms-button-hover, var(--cms-button-bg)) !important; border-color: var(--cms-button-hover, var(--cms-button-bg)) !important; }
+.cms-rich-content { line-height: 1.8; }
+.cms-rich-content p { margin-bottom: 1rem; }
+.cms-rich-content ul, .cms-rich-content ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.cms-rich-content blockquote { border-left: 4px solid #0f6b4f; padding-left: 1rem; font-style: italic; }

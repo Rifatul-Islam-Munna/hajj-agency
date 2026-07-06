@@ -9,11 +9,18 @@ import {
   type ReactNode,
 } from "react";
 import type { CmsPage, CmsSection as CmsSectionType } from "../lib/cms-db";
+import { sanitizeRichHtml } from "../lib/rich-text";
 
 const CmsContext = createContext<CmsPage | null>(null);
 
 export function CmsPageProvider({ page, children }: { page: CmsPage | null; children: ReactNode }) {
-  return <CmsContext.Provider value={page}>{children}</CmsContext.Provider>;
+  const schema = validSchema(page?.structured_data);
+  return (
+    <CmsContext.Provider value={page}>
+      {schema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />}
+      {children}
+    </CmsContext.Provider>
+  );
 }
 
 export function CmsSection({ sectionKey, children }: { sectionKey: string; children: ReactNode }) {
@@ -40,25 +47,17 @@ export function CmsSection({ sectionKey, children }: { sectionKey: string; child
 }
 
 function applySectionContent(root: HTMLElement, section: CmsSectionType) {
-  const eyebrow = root.querySelector<HTMLElement>(
-    "[data-cms-eyebrow], .section-heading span, .section-title span, .subtitle",
-  );
-  const title = root.querySelector<HTMLElement>(
-    "[data-cms-title], .section-heading h1, .section-heading h2, .section-title h1, .section-title h2, h1, h2",
-  );
-  const description = root.querySelector<HTMLElement>(
-    "[data-cms-description], .section-heading p, .section-title p, p",
-  );
+  const eyebrow = root.querySelector<HTMLElement>("[data-cms-eyebrow], .section-heading span, .section-title span, .subtitle");
+  const title = root.querySelector<HTMLElement>("[data-cms-title], .section-heading h1, .section-heading h2, .section-title h1, .section-title h2, h1, h2");
+  const description = root.querySelector<HTMLElement>("[data-cms-description], .section-heading p, .section-title p, p");
   const image = Array.from(root.querySelectorAll<HTMLImageElement>("img")).find(
     (item) => !item.src.includes("title.svg") && !item.src.includes("bismillah"),
   );
-  const button = root.querySelector<HTMLElement>(
-    "[data-cms-button], a.green_btn, a.green_border_btn, a.yellow_btn, button.green_btn, a[class*='btn']",
-  );
+  const button = root.querySelector<HTMLElement>("[data-cms-button], a.green_btn, a.green_border_btn, a.yellow_btn, button.green_btn, a[class*='btn']");
 
   if (section.eyebrow && eyebrow) eyebrow.textContent = section.eyebrow;
   if (section.title && title) title.textContent = section.title;
-  if (section.description && description) description.textContent = section.description;
+  if (section.description && description) description.innerHTML = sanitizeRichHtml(section.description);
   if (section.image_url && image) image.src = section.image_url;
 
   if (button) {
@@ -67,9 +66,7 @@ function applySectionContent(root: HTMLElement, section: CmsSectionType) {
       if (span) span.textContent = section.button_text;
       else button.textContent = section.button_text;
     }
-    if (section.button_url && button instanceof HTMLAnchorElement) {
-      button.href = section.button_url;
-    }
+    if (section.button_url && button instanceof HTMLAnchorElement) button.href = section.button_url;
     if (section.button_bg_color) {
       button.classList.add("cms-managed-button");
       button.style.setProperty("--cms-button-bg", section.button_bg_color);
@@ -78,5 +75,14 @@ function applySectionContent(root: HTMLElement, section: CmsSectionType) {
       button.classList.add("cms-managed-button");
       button.style.setProperty("--cms-button-hover", section.button_hover_color);
     }
+  }
+}
+
+function validSchema(value?: string) {
+  if (!value?.trim()) return "";
+  try {
+    return JSON.stringify(JSON.parse(value));
+  } catch {
+    return "";
   }
 }

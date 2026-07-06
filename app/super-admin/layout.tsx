@@ -1,3 +1,4 @@
+import { BookOpenText, Boxes, Gauge, LayoutTemplate, Settings } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -15,16 +16,18 @@ export default async function SuperAdminLayout({ children }: { children: ReactNo
       <aside className="admin-sidebar">
         <Link href="/super-admin" className="admin-brand">Hajj Agency CMS</Link>
         <nav className="admin-nav">
-          <Link href="/super-admin">Dashboard</Link>
+          <Link href="/super-admin"><Gauge size={17} /> Dashboard</Link>
           <div className="admin-nav-group">
-            <div className="admin-nav-label">Packages</div>
-            <Link href="/super-admin/packages">Manage Packages</Link>
+            <div className="admin-nav-label">Business content</div>
+            <Link href="/super-admin/packages"><Boxes size={17} /> Hajj Packages</Link>
+            <Link href="/super-admin/blog"><BookOpenText size={17} /> Blog</Link>
+            <Link href="/super-admin/settings"><Settings size={17} /> Site & Navbar</Link>
           </div>
           <div className="admin-nav-group">
-            <div className="admin-nav-label">Pages</div>
+            <div className="admin-nav-label">Pages and sections</div>
             {CMS_PAGES.map((page) => (
               <Link key={page.slug} href={`/super-admin/pages/${page.slug}`}>
-                {page.name}
+                <LayoutTemplate size={16} /> {page.name}
               </Link>
             ))}
           </div>

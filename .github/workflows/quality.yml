@@ -8,10 +8,32 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: hajj_agency
+          MYSQL_USER: hajj
+          MYSQL_PASSWORD: hajj
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uhajj -phajj"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
     env:
-      CMS_DATA_DIR: /tmp/hajj-agency-cms
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_USER: hajj
+      DB_PASSWORD: hajj
+      DB_NAME: hajj_agency
+      SUPER_ADMIN_EMAIL: admin@example.com
+      SUPER_ADMIN_PASSWORD: ci-password
       ADMIN_SESSION_SECRET: ci-session-key
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,15 +41,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - id: compile
-        continue-on-error: true
-        run: npm run build > build.log 2>&1
-      - name: Upload build log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-      - name: Fail when build failed
-        if: steps.compile.outcome != 'success'
-        run: exit 1
+      - run: npm run build

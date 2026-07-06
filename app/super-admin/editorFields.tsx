@@ -1,20 +1,23 @@
 "use client";
 
-export function Field({ label, value, onChange, textarea, placeholder, className = "" }: {
+export function Field({ label, value, onChange, textarea, placeholder, className = "", type = "text", help }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   textarea?: boolean;
   placeholder?: string;
   className?: string;
+  type?: string;
+  help?: string;
 }) {
   return (
     <div className={`admin-field ${className}`}>
       <label>{label}</label>
+      {help && <small className="admin-help">{help}</small>}
       {textarea ? (
         <textarea value={value || ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
       ) : (
-        <input value={value || ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
+        <input type={type} value={value || ""} placeholder={placeholder} onChange={(event) => onChange(event.target.value)} />
       )}
     </div>
   );

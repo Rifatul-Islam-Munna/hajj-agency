@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { PackageRecord } from "../lib/cms-db";
+import { sanitizeRichHtml } from "../lib/rich-text";
 
 export default function TravelPackageView({ item }: { item: PackageRecord }) {
   return (
@@ -14,7 +15,7 @@ export default function TravelPackageView({ item }: { item: PackageRecord }) {
               <div className="course-content p-4">
                 <span className="course_category gray_btn">{item.category}</span>
                 <h1 className="mt-3">{item.title}</h1>
-                <p>{item.description || item.short_description}</p>
+                <div className="cms-rich-content" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(item.description || `<p>${item.short_description}</p>`) }} />
               </div>
             </div>
           </div>

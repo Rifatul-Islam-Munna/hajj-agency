@@ -1,7 +1,10 @@
 "use client";
 
+import { Image as ImageIcon, LayoutTemplate } from "lucide-react";
 import type { CmsSection } from "../lib/cms-db";
 import { ColorField, Field } from "./editorFields";
+import ImageUploadField from "./imageUploadField";
+import RichTextEditor from "./richTextEditor";
 
 export default function SectionEditor({ section, onChange }: {
   section: CmsSection;
@@ -11,7 +14,7 @@ export default function SectionEditor({ section, onChange }: {
     <section className="admin-section-card">
       <div className="admin-section-head">
         <div>
-          <h3>{section.section_name}</h3>
+          <h3><LayoutTemplate size={19} /> {section.section_name}</h3>
           <p className="admin-subtitle">Section key: {section.section_key}</p>
         </div>
         <label className="admin-toggle">
@@ -22,9 +25,20 @@ export default function SectionEditor({ section, onChange }: {
       <div className="admin-fields">
         <Field label="Small heading / eyebrow" value={section.eyebrow} onChange={(eyebrow) => onChange({ eyebrow })} />
         <Field label="Title" value={section.title} onChange={(title) => onChange({ title })} />
-        <Field className="full" label="Description" value={section.description} onChange={(description) => onChange({ description })} textarea />
-        <Field className="full" label="Image URL" value={section.image_url} onChange={(image_url) => onChange({ image_url })} placeholder="/assets/img/... or https://..." />
-        {section.image_url && <div className="admin-field full"><img src={section.image_url} alt="Section preview" className="admin-package-preview" /></div>}
+        <RichTextEditor
+          label="Description"
+          value={section.description}
+          onChange={(description) => onChange({ description })}
+          help="Use Enter for a new paragraph, Shift+Enter for a line break, and the toolbar for bold, lists, links and headings."
+        />
+        <ImageUploadField
+          label={`${section.section_name} image`}
+          value={section.image_url}
+          onChange={(image_url) => onChange({ image_url })}
+          recommended={recommendedSize(section.section_key)}
+          help="Images are uploaded directly to ImageBB. The storefront design and image position stay unchanged."
+        />
+        <div className="admin-subsection-title full"><ImageIcon size={17} /> Button</div>
         <Field label="Button text" value={section.button_text} onChange={(button_text) => onChange({ button_text })} />
         <Field label="Button URL" value={section.button_url} onChange={(button_url) => onChange({ button_url })} />
         <ColorField label="Button background" value={section.button_bg_color} onChange={(button_bg_color) => onChange({ button_bg_color })} />
@@ -32,4 +46,24 @@ export default function SectionEditor({ section, onChange }: {
       </div>
     </section>
   );
+}
+
+function recommendedSize(key: string) {
+  const sizes: Record<string, string> = {
+    slider: "1920 × 900 px",
+    "home-banner": "1920 × 900 px",
+    banner: "1920 × 560 px",
+    about: "900 × 900 px",
+    "prayer-time": "1920 × 800 px",
+    counter: "1920 × 700 px",
+    testimonials: "900 × 700 px",
+    packages: "900 × 650 px",
+    "packages-grid": "900 × 650 px",
+    blog: "1200 × 800 px",
+    "blog-grid": "1200 × 800 px",
+    scholars: "800 × 900 px",
+    services: "800 × 600 px",
+    pillars: "800 × 600 px",
+  };
+  return sizes[key] || "1200 × 800 px";
 }
