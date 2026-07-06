@@ -68,8 +68,12 @@ export async function getPackageBySlug(slug: string): Promise<PackageRecord | nu
   return rows[0] ? mapPackage(rows[0]) : null;
 }
 
-async function getPackageById(id: number) {
-  const rows = await query<PackageRow[]>("SELECT * FROM packages WHERE id = ? LIMIT 1", [id]);
+export async function getPackageById(id: number, enabledOnly = false): Promise<PackageRecord | null> {
+  await ensureCmsStorage();
+  const rows = await query<PackageRow[]>(
+    `SELECT * FROM packages WHERE id = ? ${enabledOnly ? "AND enabled = 1" : ""} LIMIT 1`,
+    [id],
+  );
   return rows[0] ? mapPackage(rows[0]) : null;
 }
 
