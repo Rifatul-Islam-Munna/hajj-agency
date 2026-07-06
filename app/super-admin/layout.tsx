@@ -4,6 +4,7 @@ import { getManagementUser } from "../lib/access-control";
 import AdminSidebar from "./adminSidebar";
 import LogoutButton from "./logoutButton";
 import "../admin-panel.css";
+import "../admin-modern.css";
 
 export default async function SuperAdminLayout({ children }: { children: ReactNode }) {
   const session = await getManagementUser();
