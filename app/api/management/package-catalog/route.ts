@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   try {
     await requireManagementUser();
     const body = await request.json();
-    if (!String(body.title || "").trim() || !String(body.slug || "").trim()) return NextResponse.json({ message: "Title and slug are required" }, { status: 400 });
+    if (!String(body.title || "").trim()) return NextResponse.json({ message: "Package title is required" }, { status: 400 });
     return NextResponse.json({ package: await savePackage(body) }, { status: 201 });
   } catch (error) { return handle(error); }
 }
@@ -22,7 +22,7 @@ export async function PUT(request: Request) {
     await requireManagementUser();
     const body = await request.json();
     if (!Number(body.id)) return NextResponse.json({ message: "Package id is required" }, { status: 400 });
-    if (!String(body.title || "").trim() || !String(body.slug || "").trim()) return NextResponse.json({ message: "Title and slug are required" }, { status: 400 });
+    if (!String(body.title || "").trim()) return NextResponse.json({ message: "Package title is required" }, { status: 400 });
     return NextResponse.json({ package: await savePackage(body) });
   } catch (error) { return handle(error); }
 }
