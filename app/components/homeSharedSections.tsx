@@ -7,6 +7,7 @@ import Scholars from "./scholars";
 import CounterUp from "./counterUp";
 import Testimonials from "./testimonials";
 import Blog from "./blog";
+import Faq from "./faq";
 import { CmsSection } from "./cmsPage";
 
 export default function HomeSharedSections() {
@@ -20,6 +21,7 @@ export default function HomeSharedSections() {
       <CmsSection sectionKey="scholars"><Scholars /></CmsSection>
       <CmsSection sectionKey="counter"><CounterUp /></CmsSection>
       <CmsSection sectionKey="testimonials"><Testimonials /></CmsSection>
+      <CmsSection sectionKey="faq"><Faq /></CmsSection>
       <CmsSection sectionKey="blog"><Blog /></CmsSection>
     </>
   );
