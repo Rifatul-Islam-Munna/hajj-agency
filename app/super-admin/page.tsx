@@ -1,34 +1,25 @@
-import { BookOpenText, Boxes, LayoutTemplate } from "lucide-react";
+import { BookOpenText, Boxes, CreditCard, ShoppingBag } from "lucide-react";
 import Link from "next/link";
-import { CMS_PAGES } from "../lib/cms-config";
 import { getBlogPosts } from "../lib/blog-store";
+import { getBookingOrders } from "../lib/order-store";
 import { getPackages } from "../lib/package-store";
 
 export default async function SuperAdminDashboard() {
-  const [packages, posts] = await Promise.all([
+  const [packages, posts, orders] = await Promise.all([
     getPackages({ enabledOnly: false }).catch(() => []),
     getBlogPosts({ enabledOnly: false }).catch(() => []),
+    getBookingOrders({ limit: 500 }).catch(() => []),
   ]);
-  return (
-    <>
-      <h1 className="admin-title">Super Admin Dashboard</h1>
-      <p className="admin-subtitle">Manage Hajj packages, blog articles, ImageBB media, navbar text, rich content and SEO.</p>
-      <div className="admin-grid">
-        <div className="admin-card"><LayoutTemplate size={22} /><span>Total pages</span><div className="admin-stat">{CMS_PAGES.length}</div></div>
-        <div className="admin-card"><Boxes size={22} /><span>Total packages</span><div className="admin-stat">{packages.length}</div></div>
-        <div className="admin-card"><BookOpenText size={22} /><span>Blog posts</span><div className="admin-stat">{posts.length}</div></div>
-      </div>
-      <div className="admin-card" style={{ marginTop: 24 }}>
-        <h2>Content management</h2>
-        <p className="admin-subtitle">The public theme remains unchanged; these tools replace its text and images dynamically.</p>
-        <div className="admin-actions" style={{ marginTop: 16 }}>
-          <Link className="admin-button" href="/super-admin/pages/home">Edit Home Page</Link>
-          <Link className="admin-button secondary" href="/super-admin/all-records">Edit All Connected Records</Link>
-          <Link className="admin-button secondary" href="/super-admin/packages">Manage Packages</Link>
-          <Link className="admin-button secondary" href="/super-admin/blog">Manage Blog</Link>
-          <Link className="admin-button secondary" href="/super-admin/settings">Navbar & ImageBB</Link>
-        </div>
-      </div>
-    </>
-  );
+  const paid = orders.filter((order) => order.payment_status === "paid");
+  const revenue = paid.reduce((total, order) => total + order.total_amount, 0);
+  return <>
+    <div className="admin-page-head"><div><h1 className="admin-title">Dashboard</h1><p className="admin-subtitle">Packages, bookings, payments and content in one place.</p></div><Link className="admin-button" href="/super-admin/packages/new">Create Package</Link></div>
+    <div className="admin-grid">
+      <div className="admin-card"><ShoppingBag size={22} /><span>Total orders</span><div className="admin-stat">{orders.length}</div></div>
+      <div className="admin-card"><Boxes size={22} /><span>Packages</span><div className="admin-stat">{packages.length}</div></div>
+      <div className="admin-card"><CreditCard size={22} /><span>Paid revenue</span><div className="admin-stat">BDT {revenue.toLocaleString()}</div></div>
+      <div className="admin-card"><BookOpenText size={22} /><span>Blog posts</span><div className="admin-stat">{posts.length}</div></div>
+    </div>
+    <div className="admin-card" style={{ marginTop: 24 }}><h2>Quick actions</h2><div className="admin-actions" style={{ marginTop: 16 }}><Link className="admin-button" href="/super-admin/orders">Manage Orders</Link><Link className="admin-button secondary" href="/super-admin/packages">Manage Packages</Link><Link className="admin-button secondary" href="/super-admin/booking-forms">Booking Forms</Link><Link className="admin-button secondary" href="/super-admin/payments">SSLCommerz</Link><Link className="admin-button secondary" href="/super-admin/content">Website Content</Link></div></div>
+  </>;
 }
