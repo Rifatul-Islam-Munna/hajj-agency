@@ -1,0 +1,3 @@
+.cms-section-wrapper { display: contents; }
+.cms-managed-button { background-color: var(--cms-button-bg) !important; border-color: var(--cms-button-bg) !important; }
+.cms-managed-button:hover { background-color: var(--cms-button-hover, var(--cms-button-bg)) !important; border-color: var(--cms-button-hover, var(--cms-button-bg)) !important; }
