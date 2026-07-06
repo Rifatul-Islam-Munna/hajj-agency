@@ -1,1 +1,22 @@
 name: Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CMS_DATA_DIR: /tmp/hajj-agency-cms
+      ADMIN_SESSION_SECRET: ci-session-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
