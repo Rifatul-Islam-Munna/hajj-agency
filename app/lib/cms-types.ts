@@ -95,6 +95,37 @@ export type BlogPost = {
   structured_data: string;
 };
 
+export type ContentRecord = {
+  id: number;
+  collection_key: string;
+  slug: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  image_url: string;
+  icon_url: string;
+  link_text: string;
+  link_url: string;
+  social_facebook: string;
+  social_x: string;
+  social_youtube: string;
+  enabled: boolean;
+  sort_order: number;
+};
+
+export type ContactSubmission = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  source_page: string;
+  status: "unread" | "read" | "replied";
+  admin_note: string;
+  created_at: string;
+};
+
 export type NavItem = {
   id: string;
   label: string;
@@ -120,6 +151,30 @@ export type SiteSettings = {
   nav_items: NavItem[];
   social_links: Record<string, string>;
   imagebb_api_key: string;
+  footer_logo_url: string;
+  footer_background_url: string;
+  footer_description: string;
+  footer_newsletter_title: string;
+  footer_newsletter_description: string;
+  footer_email_placeholder: string;
+  footer_button_text: string;
+  footer_copyright: string;
+  footer_shape_1_url: string;
+  footer_shape_2_url: string;
+  footer_shape_3_url: string;
+  footer_shape_4_url: string;
+  contact_form_title: string;
+  contact_info_title: string;
+  contact_info_description: string;
+  contact_button_text: string;
+  contact_success_message: string;
+  contact_name_placeholder: string;
+  contact_email_placeholder: string;
+  contact_phone_placeholder: string;
+  contact_subject_placeholder: string;
+  contact_message_placeholder: string;
+  contact_phone_secondary: string;
+  contact_email_secondary: string;
 };
 
 export type PublicSiteSettings = Omit<SiteSettings, "imagebb_api_key">;

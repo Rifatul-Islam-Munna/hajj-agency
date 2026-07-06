@@ -1,9 +1,11 @@
 import { ensureCmsStorage } from "./cms-storage";
 
-export type { BlogPost, CmsPage, CmsSection, NavItem, PackageRecord, PublicSiteSettings, SiteSettings } from "./cms-types";
+export type { BlogPost, CmsPage, CmsSection, ContactSubmission, ContentRecord, NavItem, PackageRecord, PublicSiteSettings, SiteSettings } from "./cms-types";
 export { getCmsPage, getCmsPages, saveCmsPage } from "./cms-pages-store";
 export { deletePackage, getPackageBySlug, getPackages, savePackage } from "./package-store";
 export { deleteBlogPost, getBlogPostBySlug, getBlogPosts, saveBlogPost } from "./blog-store";
+export { deleteContentRecord, getContentRecord, getContentRecords, saveContentRecord } from "./content-store";
+export { createContactSubmission, deleteContactSubmission, getContactSubmissions, updateContactSubmission } from "./contact-store";
 export { getPublicSiteSettings, getSiteSettings, saveSiteSettings } from "./site-settings";
 
 let started = false;
