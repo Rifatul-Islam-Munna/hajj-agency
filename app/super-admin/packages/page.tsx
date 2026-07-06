@@ -1,7 +1,6 @@
-import { getPackages } from "../../lib/cms-db";
-import PackageManager from "../packageManager";
+import { getPackageAdminRows } from "../../lib/booking-store";
+import PackageTable from "../packageTable";
 
 export default async function AdminPackagesPage() {
-  const packages = await getPackages({ enabledOnly: false });
-  return <PackageManager initialPackages={packages} />;
+  return <PackageTable initialRows={await getPackageAdminRows()} />;
 }
