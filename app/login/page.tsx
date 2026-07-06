@@ -1,5 +1,5 @@
 import Header from "../layouts/header1";
-import Login from "../template-parts/login";
+import LoginBoundary from "../components/loginBoundary";
 import Footer from "../layouts/footer";
 import { CmsPageProvider, CmsSection } from "../components/cmsPage";
 import { getCmsPage } from "../lib/cms-db";
@@ -12,7 +12,7 @@ export default async function LoginPage() {
   return (
     <CmsPageProvider page={page}>
       <Header />
-      <CmsSection sectionKey="login"><Login /></CmsSection>
+      <CmsSection sectionKey="login"><LoginBoundary /></CmsSection>
       <Footer />
     </CmsPageProvider>
   );
