@@ -1,31 +1,5 @@
-import Header from "../layouts/header2";
-import Homebanner from "../components/homeBanner";
-import About from "../components/about";
-import Pillars from "../components/pillars";
-import Services from "../components/services";
-import Packages from "../components/packages";
-import PrayerTime from "../components/prayerTime";
-import Scollars from "../components/scholars";
-import CounterUp from "../components/counterUp";
-import Testimonials from "../components/testimonials";
-import Blog from "../components/blog";
-import Footer from "../layouts/footer";
+import HomeTwoCms from "../components/homeTwoCms";
 
-export default function Home2() {
-  return (
-    <>
-      <Header />
-      <Homebanner />
-      <About />
-      <Pillars />
-      <Services />
-      <Packages />
-      <PrayerTime />
-      <Scollars />
-      <CounterUp />
-      <Testimonials />
-      <Blog />
-      <Footer />
-    </>
-  );
+export default function HomeTwo() {
+  return <HomeTwoCms />;
 }
