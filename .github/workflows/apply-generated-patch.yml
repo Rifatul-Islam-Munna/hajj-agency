@@ -13,6 +13,7 @@ permissions:
 jobs:
   apply:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,7 +21,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
       - run: node scripts/apply-generated-patches.mjs
+      - name: Synchronize dependency lockfile
+        run: npm install --package-lock-only --ignore-scripts
       - name: Commit generated changes
         run: |
           git config user.name "github-actions[bot]"
