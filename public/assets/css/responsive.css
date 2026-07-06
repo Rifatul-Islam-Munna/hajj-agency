@@ -1,0 +1,205 @@
+/* Responsive Design */
+
+
+@media only screen and (max-width:1600px) { 
+	
+
+}
+
+@media only screen and (max-width:1400px) { 
+	
+
+}
+
+@media only screen and (max-width:1366px) { 
+	.header-top {
+		padding: 15px 0;
+	}
+	.main-header {
+		margin: 0;
+	}
+	.bis_himage {
+		left: 52%;
+	}
+	.bis_himage img {
+		width: 166px;
+	}
+	.slider-content h1 {
+		font-size: 50px;
+	}
+	.slider_shape {
+		top: 56px;
+	}
+
+	.slider_img {
+		top: 17px;
+	}	
+
+	.scholar_img {
+		width: 230px;
+		height: 230px;
+		border: 7px dashed rgba(245,197,11,0.5);
+
+	}
+
+	.single-pillar p{
+		margin-bottom: 14px;
+	}
+	.pl_btm {
+		margin: 0 0px;
+	}
+	.woocommerce-cart-form .product-name {
+		margin-left: 0;
+	}
+	.shop.checkout .checkout-form h2 {
+		margin-bottom: 25px;
+	}
+
+	.shop.checkout .form .form-group {
+		margin-bottom: 0;
+	}
+	.shop.checkout .form .form-group label, .register label, .login label {
+		margin-bottom: 10px;
+	}
+}
+@media only screen and (max-width:1336px) { 
+		.bis_himage {
+		 display: none;
+		}
+}
+
+@media only screen and (max-width:1199px) {
+	.header-2 .widget_menu_icon{
+		display: block;
+	}
+	.main-header {
+		padding: 15px 30px;
+	}
+	.bis_himage,
+	.hslider_image,
+	.slider_arrows{
+		display: none;
+	}
+
+	.slider-content {
+		padding: 100px 0 220px;
+		text-align: center;
+	}
+	.prayer-time-box{
+		max-width: 100%;
+	}
+	.course-sidebar{
+		margin-left: 0;
+	}
+	.footer-logo{
+		
+	}
+	.footer_social{
+		margin-top: 45px;
+	}
+}
+
+@media only screen and (max-width:1024px) { 
+
+
+}
+
+@media only screen and (max-width: 991px){
+	.header-top{
+		padding: 28px 0;
+	}
+	.benefits ul li{
+		width: 100%;
+	}
+	.header-top ul li {
+		display: block;
+		margin-bottom: 9px;
+	}
+	.header-top ul li:last-child {
+		margin-bottom: 0;
+	}
+	.header-top .social_icons a {
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+	}
+	.header-top .social_icons a{
+		margin: 0 5px;
+	}
+	.htright{
+		margin-top: 10px;
+		padding-bottom: 7px;
+	}
+	.htright .social_icons{
+		margin-top: 15px;
+	}
+		
+}
+
+@media only screen and (max-width: 767px){
+	.main-header {
+		padding: 15px 15px;
+	}
+	.search_btn{
+		display: none;
+	}
+	.progress-wrap{
+		display: none;
+	}
+	.section-heading h2 {
+		font-size: 28px;
+	}
+	.slider-content h1 {
+		font-size: 40px;
+	}
+	.single-pillar::after{
+		background-size: cover;
+	}
+	.footer-widget {
+		margin-bottom: 30px;
+	}
+	.footer_shapes{
+		display: none;
+	}
+	.cd_tab #nav-tab button {
+		margin: 15px 0 15px;
+		padding: 5px 19px;
+	}
+	.cd_curriculum span{
+		display: block;
+	}
+	.cd_cur_right {
+		float: left;
+		font-size: 15px;
+		margin-top: 6px;
+	}
+
+	.cd_curriculum ul li {
+		padding-bottom: 50px;
+		margin-bottom: 15px;
+
+	}
+	
+	.cart-collaterals{
+		padding: 24px;
+	}
+	.cart-collaterals .shop_table_responsive > div {
+		padding: 5px 0;
+	}
+}
+@media only screen and (max-width: 667px){
+
+}
+@media only screen and (max-width: 575px){
+
+	
+}
+
+@media only screen and (max-width: 448px){
+	.social_icons{
+		margin-top: 10px;
+	}
+	
+}
+
+
