@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
 import { query, verifyPassword } from "../../../lib/auth-db";
+import { createSessionToken } from "../../../lib/session-token";
 
 interface UserRow extends RowDataPacket {
   id: number;
@@ -43,10 +44,11 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24 * 7,
     };
     response.cookies.set("user_id", String(user.id), cookieOptions);
-    response.cookies.set("management_access", isManager ? "allowed" : "", {
-      ...cookieOptions,
-      maxAge: isManager ? cookieOptions.maxAge : 0,
-    });
+    if (isManager) {
+      response.cookies.set("management_session", createSessionToken(user.id), cookieOptions);
+    } else {
+      response.cookies.set("management_session", "", { ...cookieOptions, maxAge: 0 });
+    }
     return response;
   } catch (error) {
     console.error(error);
