@@ -18,6 +18,22 @@ export const EXTRA_CMS_PAGES: CmsPageSeed[] = [
     sections: [{ key: "banner", name: "Page Banner", title: "Checkout" }, { key: "checkout", name: "Checkout Form" }],
   },
   {
+    slug: "login",
+    name: "Login",
+    route: "/login",
+    seoTitle: "Login",
+    seoDescription: "Sign in to your account.",
+    sections: [{ key: "login", name: "Login Form" }],
+  },
+  {
+    slug: "register",
+    name: "Register",
+    route: "/register",
+    seoTitle: "Register",
+    seoDescription: "Create your account.",
+    sections: [{ key: "register", name: "Registration Form" }],
+  },
+  {
     slug: "contact",
     name: "Contact",
     route: "/contact",
