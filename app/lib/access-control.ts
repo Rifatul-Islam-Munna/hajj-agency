@@ -1,14 +1,29 @@
+import type { RowDataPacket } from "mysql2";
 import { cookies } from "next/headers";
+import { query } from "./auth-db";
+import { readSessionToken } from "./session-token";
+
+interface UserRow extends RowDataPacket {
+  id: number;
+  nid_name: string;
+  email: string;
+  role: string;
+}
 
 export async function getManagementUser() {
   const cookieStore = await cookies();
-  const userId = Number(cookieStore.get("user_id")?.value);
-  const access = cookieStore.get("management_access")?.value;
-  if (!userId || access !== "allowed") return null;
+  const token = readSessionToken(cookieStore.get("management_session")?.value);
+  if (!token) return null;
+  const rows = await query<UserRow[]>(
+    "SELECT id, nid_name, email, role FROM users WHERE id = ? LIMIT 1",
+    [token.userId],
+  );
+  const user = rows[0];
+  if (!user || user.role !== "super_admin") return null;
   return {
-    userId,
-    name: "Super Admin",
-    email: "",
+    userId: user.id,
+    name: user.nid_name,
+    email: user.email,
     role: "super_admin" as const,
   };
 }
