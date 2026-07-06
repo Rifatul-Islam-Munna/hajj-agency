@@ -23,6 +23,7 @@ export default async function SuperAdminDashboard() {
         <p className="admin-subtitle">The public theme remains unchanged; these tools replace its text and images dynamically.</p>
         <div className="admin-actions" style={{ marginTop: 16 }}>
           <Link className="admin-button" href="/super-admin/pages/home">Edit Home Page</Link>
+          <Link className="admin-button secondary" href="/super-admin/all-records">Edit All Connected Records</Link>
           <Link className="admin-button secondary" href="/super-admin/packages">Manage Packages</Link>
           <Link className="admin-button secondary" href="/super-admin/blog">Manage Blog</Link>
           <Link className="admin-button secondary" href="/super-admin/settings">Navbar & ImageBB</Link>
