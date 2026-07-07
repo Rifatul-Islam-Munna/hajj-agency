@@ -149,7 +149,82 @@ async function initialize() {
     )
   `);
 
+  await migrateCommerceColumns();
   await seedDefaults();
+}
+
+async function migrateCommerceColumns() {
+  const tables: Record<string, Record<string, string>> = {
+    package_categories: {
+      description: "LONGTEXT NULL",
+      image_url: "VARCHAR(1000) NOT NULL DEFAULT ''",
+      enabled: "TINYINT(1) NOT NULL DEFAULT 1",
+      sort_order: "INT NOT NULL DEFAULT 0",
+    },
+    package_booking_settings: {
+      category_id: "INT UNSIGNED NOT NULL DEFAULT 0",
+      base_price: "DECIMAL(12,2) NOT NULL DEFAULT 0",
+      currency: "VARCHAR(8) NOT NULL DEFAULT 'BDT'",
+      pricing_mode: "ENUM('per_person','fixed') NOT NULL DEFAULT 'per_person'",
+      min_travellers: "INT UNSIGNED NOT NULL DEFAULT 1",
+      max_travellers: "INT UNSIGNED NOT NULL DEFAULT 10",
+      deposit_amount: "DECIMAL(12,2) NOT NULL DEFAULT 0",
+      booking_enabled: "TINYINT(1) NOT NULL DEFAULT 1",
+    },
+    package_price_tiers: {
+      label: "VARCHAR(191) NOT NULL DEFAULT ''",
+      people_count: "INT UNSIGNED NOT NULL DEFAULT 1",
+      amount: "DECIMAL(12,2) NOT NULL DEFAULT 0",
+      enabled: "TINYINT(1) NOT NULL DEFAULT 1",
+      sort_order: "INT NOT NULL DEFAULT 0",
+    },
+    booking_form_fields: {
+      placeholder: "VARCHAR(255) NOT NULL DEFAULT ''",
+      help_text: "TEXT NULL",
+      options_json: "LONGTEXT NULL",
+      required: "TINYINT(1) NOT NULL DEFAULT 0",
+      per_traveller: "TINYINT(1) NOT NULL DEFAULT 1",
+      enabled: "TINYINT(1) NOT NULL DEFAULT 1",
+      sort_order: "INT NOT NULL DEFAULT 0",
+    },
+    booking_orders: {
+      customer_address: "VARCHAR(500) NOT NULL DEFAULT ''",
+      customer_city: "VARCHAR(191) NOT NULL DEFAULT ''",
+      customer_country: "VARCHAR(191) NOT NULL DEFAULT 'Bangladesh'",
+      pricing_label: "VARCHAR(191) NOT NULL DEFAULT ''",
+      unit_price: "DECIMAL(12,2) NOT NULL DEFAULT 0",
+      total_amount: "DECIMAL(12,2) NOT NULL DEFAULT 0",
+      currency: "VARCHAR(8) NOT NULL DEFAULT 'BDT'",
+      payment_method: "ENUM('sslcommerz','offline') NOT NULL DEFAULT 'sslcommerz'",
+      transaction_id: "VARCHAR(80) NOT NULL DEFAULT ''",
+      payment_sessionkey: "VARCHAR(100) NOT NULL DEFAULT ''",
+      admin_note: "LONGTEXT NULL",
+    },
+    payment_settings: {
+      enabled: "TINYINT(1) NOT NULL DEFAULT 0",
+      sandbox: "TINYINT(1) NOT NULL DEFAULT 1",
+      store_id: "VARCHAR(191) NOT NULL DEFAULT ''",
+      store_password: "LONGTEXT NULL",
+      currency: "VARCHAR(8) NOT NULL DEFAULT 'BDT'",
+    },
+  };
+
+  for (const [table, columns] of Object.entries(tables)) {
+    for (const [column, definition] of Object.entries(columns)) {
+      await ensureColumn(table, column, definition);
+    }
+  }
+}
+
+async function ensureColumn(table: string, column: string, definition: string) {
+  interface ColumnRow extends RowDataPacket { present: number }
+  const rows = await query<ColumnRow[]>(
+    `SELECT COUNT(*) AS present FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [table, column],
+  );
+  if (!Number(rows[0]?.present)) {
+    await query<ResultSetHeader>(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
+  }
 }
 
 async function seedDefaults() {
@@ -184,12 +259,16 @@ async function seedDefaults() {
     ["Gender", "gender", "select", "Select gender", "Male\nFemale\nOther", 1, 1, 5]
   ];
   for (const item of defaults) {
+    const existing = await query<RowDataPacket[]>(
+      "SELECT id FROM booking_form_fields WHERE scope_type='global' AND scope_id=0 AND field_key=? LIMIT 1",
+      [item[1]],
+    );
+    if (existing.length) continue;
     await query<ResultSetHeader>(
       `INSERT INTO booking_form_fields
        (scope_type, scope_id, label, field_key, field_type, placeholder, help_text, options_json, required, per_traveller, enabled, sort_order)
-       SELECT 'global', 0, ?, ?, ?, ?, '', ?, ?, ?, 1, ?
-       WHERE NOT EXISTS (SELECT 1 FROM booking_form_fields WHERE scope_type='global' AND scope_id=0 AND field_key=?)`,
-      [item[0], item[1], item[2], item[3], JSON.stringify(String(item[4]).split("\n").filter(Boolean)), item[5], item[6], item[7], item[1]],
+       VALUES ('global', 0, ?, ?, ?, ?, '', ?, ?, ?, 1, ?)`,
+      [item[0], item[1], item[2], item[3], JSON.stringify(String(item[4]).split("\n").filter(Boolean)), item[5], item[6], item[7]],
     );
   }
 
