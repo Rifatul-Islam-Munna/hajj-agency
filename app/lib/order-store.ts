@@ -89,8 +89,11 @@ export async function getBookingOrders(options: { userId?: number; limit?: numbe
   await ensureCommerceStorage();
   const where = options.userId ? "WHERE user_id = ?" : "";
   const values: unknown[] = options.userId ? [options.userId] : [];
-  let sql = `SELECT * FROM booking_orders ${where} ORDER BY created_at DESC, id DESC`;
-  if (options.limit) { sql += " LIMIT ?"; values.push(Math.min(500, Math.max(1, Number(options.limit)))); }
+  const requestedLimit = Number(options.limit);
+  const limit = Number.isFinite(requestedLimit) && requestedLimit > 0
+    ? Math.min(500, Math.floor(requestedLimit))
+    : 0;
+  const sql = `SELECT * FROM booking_orders ${where} ORDER BY created_at DESC, id DESC${limit ? ` LIMIT ${limit}` : ""}`;
   const rows = await query<OrderRow[]>(sql, values);
   return rows.map(mapOrder);
 }
