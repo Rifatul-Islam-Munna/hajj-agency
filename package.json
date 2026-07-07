@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "package:cwp": "node scripts/package-cwp.mjs",
     "start": "node server.mjs",
     "lint": "eslint"
   },
