@@ -24,17 +24,23 @@ function applySectionContent(root: HTMLElement, section: CmsSectionType) {
   const description = root.querySelector<HTMLElement>("[data-cms-description], .section-heading p, .section-title p");
   const breadcrumb = root.querySelector<HTMLElement>("[data-cms-breadcrumb]");
   const background = root.querySelector<HTMLElement>("[data-cms-background]");
-  const image = Array.from(root.querySelectorAll<HTMLImageElement>("img")).find((item) => !item.src.includes("title.svg") && !item.src.includes("title-white.svg") && !item.src.includes("bismillah"));
-  const button = root.querySelector<HTMLElement>("[data-cms-button], a.green_btn, a.green_border_btn, a.yellow_btn, button.green_btn, a[class*='btn']");
+  const image = root.querySelector<HTMLImageElement>("[data-cms-image]") || Array.from(root.querySelectorAll<HTMLImageElement>("img")).find((item) => !item.src.includes("title.svg") && !item.src.includes("title-white.svg") && !item.src.includes("bismillah"));
+  const explicitButtons = Array.from(root.querySelectorAll<HTMLElement>("[data-cms-button]"));
+  const fallbackButton = Array.from(root.querySelectorAll<HTMLElement>("a.green_btn, a.green_border_btn, a.yellow_btn, button.green_btn, button.green_border_btn, a[class*='btn']"))
+    .find((item) => !item.closest(".single-course, .single-blog, .single-service, .single-pillar, .single-scholar, .package-booking-panel, .dashboard-head, .course-sidebar"));
+  const buttons = explicitButtons.length ? explicitButtons : fallbackButton ? [fallbackButton] : [];
+  const primaryButton = buttons[0];
   if (section.eyebrow && eyebrow) eyebrow.textContent = section.eyebrow;
   if (section.title && title) title.textContent = section.title;
   if (section.title && breadcrumb) breadcrumb.textContent = section.title;
   if (section.description && description) description.innerHTML = sanitizeRichHtml(section.description);
   if (section.image_url && background) background.style.backgroundImage = `url(${section.image_url})`;
   else if (section.image_url && image) image.src = section.image_url;
-  if (button) {
-    if (section.button_text) { const span = button.querySelector("span"); if (span) span.textContent = section.button_text; else button.textContent = section.button_text; }
-    if (section.button_url && button instanceof HTMLAnchorElement) button.href = section.button_url;
+  if (primaryButton) {
+    if (section.button_text) { const span = primaryButton.querySelector("span"); if (span) span.textContent = section.button_text; else primaryButton.textContent = section.button_text; }
+    if (section.button_url && primaryButton instanceof HTMLAnchorElement) primaryButton.href = section.button_url;
+  }
+  for (const button of buttons) {
     if (section.button_bg_color) { button.classList.add("cms-managed-button"); button.style.setProperty("--cms-button-bg", section.button_bg_color); }
     if (section.button_hover_color) { button.classList.add("cms-managed-button"); button.style.setProperty("--cms-button-hover", section.button_hover_color); }
   }

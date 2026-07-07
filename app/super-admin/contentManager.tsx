@@ -3,7 +3,7 @@
 import { ExternalLink, Plus, Save, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { ContentRecord } from "../lib/cms-db";
-import { Field } from "./editorFields";
+import { ColorField, Field } from "./editorFields";
 import ImageUploadField from "./imageUploadField";
 import RichTextEditor from "./richTextEditor";
 
@@ -14,7 +14,7 @@ const collections = [
 ] as const;
 
 function emptyRecord(collection_key: string): ContentRecord {
-  return { id: 0, collection_key, slug: "", title: "", subtitle: "", content: "", image_url: "", icon_url: "", link_text: "", link_url: "", social_facebook: "", social_x: "", social_youtube: "", enabled: true, sort_order: 0 };
+  return { id: 0, collection_key, slug: "", title: "", subtitle: "", content: "", image_url: "", icon_url: "", link_text: "", link_url: "", button_bg_color: "", button_hover_color: "", social_facebook: "", social_x: "", social_youtube: "", enabled: true, sort_order: 0 };
 }
 
 export default function ContentManager({ initialRecords }: { initialRecords: ContentRecord[] }) {
@@ -102,6 +102,8 @@ function RecordFields({ item, onChange }: { item: ContentRecord; onChange: (upda
       {item.collection_key === "services" && <ImageUploadField label="Service icon" value={item.icon_url} onChange={(icon_url) => onChange({ icon_url })} recommended="160 × 160 px transparent" />}
       <Field label={footer ? "Link URL" : "Custom link URL"} value={item.link_url} onChange={(link_url) => onChange({ link_url })} help={footer ? "Required for footer links." : "Leave empty to use the connected detail page automatically."} />
       {!footer && <Field label="Link button text" value={item.link_text} onChange={(link_text) => onChange({ link_text })} />}
+      {!footer && <ColorField label="Button background color" value={item.button_bg_color} onChange={(button_bg_color) => onChange({ button_bg_color })} />}
+      {!footer && <ColorField label="Button hover color" value={item.button_hover_color} onChange={(button_hover_color) => onChange({ button_hover_color })} />}
       {item.collection_key === "guides" && <>
         <Field label="Facebook URL" value={item.social_facebook} onChange={(social_facebook) => onChange({ social_facebook })} />
         <Field label="X / Twitter URL" value={item.social_x} onChange={(social_x) => onChange({ social_x })} />

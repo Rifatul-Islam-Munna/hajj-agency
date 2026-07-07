@@ -101,9 +101,9 @@ export default function SiteSettingsManager({ initialSettings }: { initialSettin
           <Field className="full" label="Top-bar background color / gradient" value={settings.header_topbar_background} onChange={(value) => change("header_topbar_background", value)} placeholder="#0d2f25 or linear-gradient(90deg,#0d2f25,#0f6b4f)" />
           <ColorField label="Top-bar text color" value={settings.header_topbar_text_color} onChange={(value) => change("header_topbar_text_color", value)} />
           <ColorField label="Top-bar link/icon color" value={settings.header_topbar_link_color} onChange={(value) => change("header_topbar_link_color", value)} />
-          <div className="admin-subsection-title full">Global package card buttons</div>
-          <ColorField label="Default package button color" value={settings.package_button_bg_color} onChange={(value) => change("package_button_bg_color", value)} />
-          <ColorField label="Default package hover color" value={settings.package_button_hover_color} onChange={(value) => change("package_button_hover_color", value)} />
+          <div className="admin-subsection-title full">Global storefront buttons</div>
+          <ColorField label="Default button color" value={settings.package_button_bg_color} onChange={(value) => change("package_button_bg_color", value)} />
+          <ColorField label="Default button hover color" value={settings.package_button_hover_color} onChange={(value) => change("package_button_hover_color", value)} />
           <Field label="Sunrise / left status text" value={settings.sunrise_text} onChange={(value) => change("sunrise_text", value)} />
           <Field label="Sunset / right status text" value={settings.sunset_text} onChange={(value) => change("sunset_text", value)} />
           <Field label="Header CTA text" value={settings.cta_text} onChange={(value) => change("cta_text", value)} />

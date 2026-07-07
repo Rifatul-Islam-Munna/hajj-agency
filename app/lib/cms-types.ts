@@ -106,6 +106,8 @@ export type ContentRecord = {
   icon_url: string;
   link_text: string;
   link_url: string;
+  button_bg_color: string;
+  button_hover_color: string;
   social_facebook: string;
   social_x: string;
   social_youtube: string;

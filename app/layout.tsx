@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { Lexend } from "next/font/google";
 import ScrollToTop from "./layouts/backToTop";
 import Preloader from "./layouts/preloader";
@@ -46,6 +46,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const settings = await getSiteSettings().catch(() => headerDefaults);
+  const buttonStyle = {
+    "--cms-button-bg": settings.package_button_bg_color || undefined,
+    "--cms-button-hover": settings.package_button_hover_color || undefined,
+  } as CSSProperties;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || "";
   const organizationSchema = JSON.stringify({
     "@context": "https://schema.org",
@@ -78,7 +82,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link rel="stylesheet" href="/assets/css/responsive.css" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationSchema }} />
       </head>
-      <body className="font-lexend">
+      <body className="font-lexend cms-global-buttons" style={buttonStyle}>
         <Preloader />
         {children}
         <ScrollToTop />

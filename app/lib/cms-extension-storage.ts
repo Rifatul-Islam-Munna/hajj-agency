@@ -32,6 +32,8 @@ async function initialize() {
       icon_url VARCHAR(1000) NOT NULL,
       link_text VARCHAR(191) NOT NULL,
       link_url VARCHAR(1000) NOT NULL,
+      button_bg_color VARCHAR(32) NOT NULL DEFAULT '',
+      button_hover_color VARCHAR(32) NOT NULL DEFAULT '',
       social_facebook VARCHAR(1000) NOT NULL,
       social_x VARCHAR(1000) NOT NULL,
       social_youtube VARCHAR(1000) NOT NULL,
@@ -97,6 +99,8 @@ async function initialize() {
   for (const [column, definition] of Object.entries(columns)) {
     await ensureColumn("site_settings", column, definition);
   }
+  await ensureColumn("content_records", "button_bg_color", "VARCHAR(32) NOT NULL DEFAULT ''");
+  await ensureColumn("content_records", "button_hover_color", "VARCHAR(32) NOT NULL DEFAULT ''");
   await query<ResultSetHeader>(
     `UPDATE site_settings SET footer_description = COALESCE(footer_description, '<p>Trusted Hajj and Umrah packages, guidance and travel support.</p>'), footer_newsletter_description = COALESCE(footer_newsletter_description, '<p>Subscribe and receive our Hajj and Umrah offers and updates.</p>'), contact_info_description = COALESCE(contact_info_description, '<p>Feel free to reach out to us with any questions about Hajj and Umrah.</p>') WHERE id = 1`,
   );

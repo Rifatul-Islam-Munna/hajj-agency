@@ -2,7 +2,7 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { query } from "./auth-db";
 import { ensureExtendedCmsStorage } from "./cms-extension-storage";
 import { seedAdditionalContent } from "./content-seeds";
-import { clean, slugify } from "./cms-normalize";
+import { clean, hexColor, slugify } from "./cms-normalize";
 import { sanitizeRichHtml } from "./rich-text";
 import type { ContentRecord } from "./cms-types";
 
@@ -30,10 +30,10 @@ export async function saveContentRecord(input: Partial<ContentRecord>): Promise<
   const item = normalize(input);
   try {
     if (item.id) {
-      await query<ResultSetHeader>(`UPDATE content_records SET collection_key=?, slug=?, title=?, subtitle=?, content=?, image_url=?, icon_url=?, link_text=?, link_url=?, social_facebook=?, social_x=?, social_youtube=?, enabled=?, sort_order=? WHERE id=?`, [...values(item), item.id]);
+      await query<ResultSetHeader>(`UPDATE content_records SET collection_key=?, slug=?, title=?, subtitle=?, content=?, image_url=?, icon_url=?, link_text=?, link_url=?, button_bg_color=?, button_hover_color=?, social_facebook=?, social_x=?, social_youtube=?, enabled=?, sort_order=? WHERE id=?`, [...values(item), item.id]);
       return (await getById(item.id))!;
     }
-    const result = await query<ResultSetHeader>(`INSERT INTO content_records (collection_key, slug, title, subtitle, content, image_url, icon_url, link_text, link_url, social_facebook, social_x, social_youtube, enabled, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values(item));
+    const result = await query<ResultSetHeader>(`INSERT INTO content_records (collection_key, slug, title, subtitle, content, image_url, icon_url, link_text, link_url, button_bg_color, button_hover_color, social_facebook, social_x, social_youtube, enabled, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, values(item));
     return (await getById(result.insertId))!;
   } catch (error) {
     if ((error as { code?: string }).code === "ER_DUP_ENTRY") throw new Error("DUPLICATE_SLUG");
@@ -44,7 +44,7 @@ export async function deleteContentRecord(id: number) { await ready(); await que
 async function getById(id: number) { const rows = await query<ContentRow[]>("SELECT * FROM content_records WHERE id = ? LIMIT 1", [id]); return rows[0] ? mapRecord(rows[0]) : null; }
 function normalize(input: Partial<ContentRecord>): ContentRecord {
   const title = clean(input.title) || "Untitled item";
-  return { id: Number(input.id) || 0, collection_key: clean(input.collection_key) || "general", slug: slugify(input.slug || title), title, subtitle: clean(input.subtitle), content: sanitizeRichHtml(input.content), image_url: clean(input.image_url), icon_url: clean(input.icon_url), link_text: clean(input.link_text), link_url: clean(input.link_url), social_facebook: clean(input.social_facebook), social_x: clean(input.social_x), social_youtube: clean(input.social_youtube), enabled: input.enabled !== false, sort_order: Number(input.sort_order) || 0 };
+  return { id: Number(input.id) || 0, collection_key: clean(input.collection_key) || "general", slug: slugify(input.slug || title), title, subtitle: clean(input.subtitle), content: sanitizeRichHtml(input.content), image_url: clean(input.image_url), icon_url: clean(input.icon_url), link_text: clean(input.link_text), link_url: clean(input.link_url), button_bg_color: hexColor(input.button_bg_color), button_hover_color: hexColor(input.button_hover_color), social_facebook: clean(input.social_facebook), social_x: clean(input.social_x), social_youtube: clean(input.social_youtube), enabled: input.enabled !== false, sort_order: Number(input.sort_order) || 0 };
 }
-function values(item: ContentRecord) { return [item.collection_key, item.slug, item.title, item.subtitle, item.content, item.image_url, item.icon_url, item.link_text, item.link_url, item.social_facebook, item.social_x, item.social_youtube, item.enabled, item.sort_order]; }
+function values(item: ContentRecord) { return [item.collection_key, item.slug, item.title, item.subtitle, item.content, item.image_url, item.icon_url, item.link_text, item.link_url, item.button_bg_color, item.button_hover_color, item.social_facebook, item.social_x, item.social_youtube, item.enabled, item.sort_order]; }
 function mapRecord(row: ContentRow): ContentRecord { return { ...row, enabled: Boolean(row.enabled) }; }

@@ -55,6 +55,7 @@ export default function HomeBanner() {
               <MotionLink
                 href="/about"
                 className="yellow_btn"
+                data-cms-button="true"
                 initial={{ opacity: 0, y: 50 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{

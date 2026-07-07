@@ -15,7 +15,7 @@ export default async function BlogSection() {
             </div>
           </div>
           <div className="col-lg-6 col-12 text-start text-lg-end">
-            <Link href="/blog" className="green_btn"><span>Browse All</span></Link>
+            <Link href="/blog" className="green_btn" data-cms-button="true"><span>Browse All</span></Link>
           </div>
         </div>
         <div className="row g-4">

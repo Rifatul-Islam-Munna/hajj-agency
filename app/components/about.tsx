@@ -49,7 +49,7 @@ export default function AboutSection() {
                 Labore et dolore magna aliqua enim ad minim.
               </p>
 
-              <Link href="/contact" className="green_btn mt-3">
+              <Link href="/contact" className="green_btn mt-3" data-cms-button="true">
                 <span>Ask About Islam</span>
               </Link>
 

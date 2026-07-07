@@ -1,8 +1,11 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import type { PackageRecord } from "../lib/cms-db";
 import { sanitizeRichHtml } from "../lib/rich-text";
 
 export default function TravelPackageView({ item }: { item: PackageRecord }) {
+  const buttonStyle = { "--cms-button-bg": item.button_bg_color || undefined, "--cms-button-hover": item.button_hover_color || undefined } as CSSProperties;
+  const buttonClass = item.button_bg_color || item.button_hover_color ? "cms-managed-button" : "";
   return (
     <section className="courses-details section-padding">
       <div className="container">
@@ -27,7 +30,7 @@ export default function TravelPackageView({ item }: { item: PackageRecord }) {
                 <li className="d-flex justify-content-between py-2 border-bottom"><span>Duration</span><strong>{item.duration}</strong></li>
                 <li className="d-flex justify-content-between py-2 border-bottom"><span>Type</span><strong>{item.category}</strong></li>
               </ul>
-              <Link href={item.button_url || "/contact"} className="green_btn d-block text-center mt-4">
+              <Link href={item.button_url || "/contact"} className={`green_btn d-block text-center mt-4 ${buttonClass}`} style={buttonStyle}>
                 <span>{item.button_text || "Book This Package"}</span>
               </Link>
             </div>

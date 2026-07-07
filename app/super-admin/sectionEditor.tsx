@@ -37,7 +37,7 @@ export default function SectionEditor({ section, onChange, defaultOpen }: {
           value={section.image_url}
           onChange={(image_url) => onChange({ image_url })}
           recommended={recommendedSize(section.section_key)}
-          help="Images are uploaded directly to ImageBB. The storefront design and image position stay unchanged."
+          help={section.section_key === "prayer-time" ? "This image shows on the left side of Today's Prayer Time." : "Images are uploaded directly to ImageBB. The storefront design and image position stay unchanged."}
         />
         <div className="admin-subsection-title full"><ImageIcon size={17} /> {section.section_key === "packages-grid" ? "Package tabs" : "Button"}</div>
         <Field label="Button text" value={section.button_text} onChange={(button_text) => onChange({ button_text })} />
@@ -55,7 +55,7 @@ function recommendedSize(key: string) {
     "home-banner": "1920 × 900 px",
     banner: "1920 × 560 px",
     about: "900 × 900 px",
-    "prayer-time": "1920 × 800 px",
+    "prayer-time": "900 × 900 px",
     counter: "1920 × 700 px",
     testimonials: "900 × 700 px",
     packages: "900 × 650 px",
