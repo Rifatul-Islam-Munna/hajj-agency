@@ -10,6 +10,7 @@ import RichTextEditor from "./richTextEditor";
 const collections = [
   ["faq", "Homepage FAQ"], ["services", "Services"], ["pillars", "Pillars"],
   ["guides", "Guides"], ["testimonials", "Testimonials"],
+  ["audio", "Audio Player"],
   ["footer-company", "Footer: Company"], ["footer-quick", "Footer: Quick Links"],
 ] as const;
 
@@ -91,6 +92,17 @@ export default function ContentManager({ initialRecords }: { initialRecords: Con
 
 function RecordFields({ item, onChange }: { item: ContentRecord; onChange: (update: Partial<ContentRecord>) => void }) {
   const footer = item.collection_key.startsWith("footer-");
+  const audio = item.collection_key === "audio";
+  if (audio) {
+    return (
+      <div className="admin-fields" style={{ marginTop: 16 }}>
+        <Field label="Audio title" value={item.title} onChange={(title) => onChange({ title })} />
+        <Field label="Slug" value={item.slug} onChange={(slug) => onChange({ slug })} />
+        <Field label="Audio URL" value={item.link_url} onChange={(link_url) => onChange({ link_url })} placeholder="https://example.com/audio.mp3" />
+        <Field label="Sort order" value={String(item.sort_order)} type="number" onChange={(value) => onChange({ sort_order: Number(value) || 0 })} />
+      </div>
+    );
+  }
   return (
     <div className="admin-fields" style={{ marginTop: 16 }}>
       <Field label={item.collection_key === "faq" ? "Question" : "Title / link text"} value={item.title} onChange={(title) => onChange({ title })} />

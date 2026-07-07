@@ -1,17 +1,33 @@
 "use client";
 
-import { Image as ImageIcon, LayoutTemplate } from "lucide-react";
+import { Image as ImageIcon, LayoutTemplate, Plus, Trash2 } from "lucide-react";
 import type { CmsSection } from "../lib/cms-db";
 import { ColorField, Field } from "./editorFields";
 import ImageUploadField from "./imageUploadField";
 import RichTextEditor from "./richTextEditor";
 
 function readExtra(value: string) {
-  try { return JSON.parse(value || "{}") as Record<string, string>; } catch { return {}; }
+  try { return JSON.parse(value || "{}") as Record<string, unknown>; } catch { return {}; }
 }
 
-function writeExtra(section: CmsSection, patch: Record<string, string>) {
+function writeExtra(section: CmsSection, patch: Record<string, unknown>) {
   return JSON.stringify({ ...readExtra(section.extra_json), ...patch });
+}
+
+type AudioTrack = { title: string; src: string };
+
+function readAudioTracks(value: string): AudioTrack[] {
+  const extra = readExtra(value);
+  if (Array.isArray(extra.audio_tracks)) {
+    return extra.audio_tracks.map((track) => {
+      const item = track as Partial<AudioTrack> & { url?: string };
+      return { title: item.title || "", src: item.src || item.url || "" };
+    });
+  }
+  if (typeof extra.audio_url === "string" && extra.audio_url) {
+    return [{ title: typeof extra.audio_title === "string" ? extra.audio_title : "", src: extra.audio_url }];
+  }
+  return [{ title: "", src: "" }];
 }
 
 export default function SectionEditor({ section, onChange, defaultOpen }: {
@@ -55,8 +71,33 @@ export default function SectionEditor({ section, onChange, defaultOpen }: {
         {section.section_key === "about" && (
           <>
             <div className="admin-subsection-title full">Audio Player</div>
-            <Field label="Audio title" value={readExtra(section.extra_json).audio_title || ""} onChange={(audio_title) => onChange({ extra_json: writeExtra(section, { audio_title }) })} />
-            <Field label="Audio URL" value={readExtra(section.extra_json).audio_url || ""} onChange={(audio_url) => onChange({ extra_json: writeExtra(section, { audio_url }) })} placeholder="https://example.com/audio.mp3" help="Homepage About player audio file URL." />
+            <div className="admin-field full">
+              <label>Audio tracks</label>
+              <small className="admin-help">Add as many Homepage About player audio files as needed.</small>
+              {readAudioTracks(section.extra_json).map((track, index, tracks) => (
+                <div key={index} className="admin-fields" style={{ marginBottom: 14 }}>
+                  <Field label={`Audio ${index + 1} title`} value={track.title} onChange={(title) => {
+                    const next = tracks.map((item, itemIndex) => itemIndex === index ? { ...item, title } : item);
+                    onChange({ extra_json: writeExtra(section, { audio_tracks: next, audio_title: "", audio_url: "" }) });
+                  }} />
+                  <Field label={`Audio ${index + 1} URL`} value={track.src} onChange={(src) => {
+                    const next = tracks.map((item, itemIndex) => itemIndex === index ? { ...item, src } : item);
+                    onChange({ extra_json: writeExtra(section, { audio_tracks: next, audio_title: "", audio_url: "" }) });
+                  }} placeholder="https://example.com/audio.mp3" />
+                  <div className="admin-field">
+                    <label>&nbsp;</label>
+                    <button type="button" className="admin-button danger" onClick={() => {
+                      const next = tracks.length > 1 ? tracks.filter((_, itemIndex) => itemIndex !== index) : [{ title: "", src: "" }];
+                      onChange({ extra_json: writeExtra(section, { audio_tracks: next, audio_title: "", audio_url: "" }) });
+                    }}><Trash2 size={16} /> Remove</button>
+                  </div>
+                </div>
+              ))}
+              <button type="button" className="admin-button secondary" onClick={() => {
+                const next = [...readAudioTracks(section.extra_json), { title: "", src: "" }];
+                onChange({ extra_json: writeExtra(section, { audio_tracks: next, audio_title: "", audio_url: "" }) });
+              }}><Plus size={16} /> Add Audio</button>
+            </div>
           </>
         )}
       </div>

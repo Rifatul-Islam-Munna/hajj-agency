@@ -1,4 +1,4 @@
-:root { --admin-bg: #f4f7f6; --admin-panel: #ffffff; --admin-text: #17211d; --admin-muted: #6b7771; --admin-blue: #0f6cff; --admin-ocean-blue: #008bb8; --admin-green: #1D8E5A; --admin-border: #dfe7e3; }
+:root { --admin-bg: #f4f7f6; --admin-panel: #ffffff; --admin-text: #17211d; --admin-muted: #6b7771; --admin-blue: #22256D; --admin-ocean-blue: #22256D; --admin-green: #1D8E5A; --admin-border: #dfe7e3; }
 * { box-sizing: border-box; }
 .admin-shell { min-height: 100vh; background: var(--admin-bg); color: var(--admin-text); display: grid; grid-template-columns: 280px minmax(0, 1fr); font-family: Arial, sans-serif; }
 .admin-sidebar { background: #0d2f25; color: white; padding: 24px 18px; min-height: 100vh; position: sticky; top: 0; height: 100vh; overflow-y: auto; }

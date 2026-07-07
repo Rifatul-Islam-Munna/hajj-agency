@@ -1,9 +1,25 @@
-import { getCmsPage } from "../lib/cms-db";
+import { getCmsPage, getContentRecords } from "../lib/cms-db";
 import AboutClient from "./aboutClient";
+
+type AudioTrack = { title: string; src: string };
 
 function parseAudioTracks(value?: string) {
   try {
-    const parsed = JSON.parse(value || "{}") as { audio_title?: string; audio_url?: string };
+    const parsed = JSON.parse(value || "{}") as {
+      audio_title?: string;
+      audio_url?: string;
+      audio_tracks?: { title?: string; src?: string; url?: string }[];
+    };
+    const tracks = Array.isArray(parsed.audio_tracks)
+      ? parsed.audio_tracks
+          .map((track) => ({
+            title: track.title || "Listen To Quran Audio",
+            src: track.src || track.url || "",
+          }))
+          .filter((track) => track.src.trim())
+      : [];
+
+    if (tracks.length) return tracks;
     return parsed.audio_url ? [{ title: parsed.audio_title || "Listen To Quran Audio", src: parsed.audio_url }] : undefined;
   } catch {
     return undefined;
@@ -11,8 +27,14 @@ function parseAudioTracks(value?: string) {
 }
 
 export default async function AboutSection() {
-  const page = await getCmsPage("home").catch(() => null);
+  const [page, records] = await Promise.all([
+    getCmsPage("home").catch(() => null),
+    getContentRecords({ collection: "audio" }).catch(() => []),
+  ]);
   const about = page?.sections.find((section) => section.section_key === "about");
-  const audioTracks = parseAudioTracks(about?.extra_json);
+  const dbTracks: AudioTrack[] = records
+    .map((item) => ({ title: item.title || "Listen To Quran Audio", src: item.link_url }))
+    .filter((track) => track.src.trim());
+  const audioTracks = dbTracks.length ? dbTracks : parseAudioTracks(about?.extra_json);
   return <AboutClient audioTracks={audioTracks} />;
 }
