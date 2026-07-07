@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     });
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttpsRequest(request),
       sameSite: "strict" as const,
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
@@ -73,4 +73,10 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+function isHttpsRequest(request: Request) {
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  if (forwardedProto) return forwardedProto.split(",")[0]?.trim() === "https";
+  return new URL(request.url).protocol === "https:";
 }

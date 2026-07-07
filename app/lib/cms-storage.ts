@@ -185,6 +185,8 @@ async function migrateLegacyColumns() {
     structured_data: "LONGTEXT NULL",
   };
   const packageColumns: Record<string, string> = {
+    button_bg_color: "VARCHAR(32) NOT NULL DEFAULT ''",
+    button_hover_color: "VARCHAR(32) NOT NULL DEFAULT ''",
     seo_title: "VARCHAR(255) NOT NULL DEFAULT ''",
     seo_description: "TEXT NULL",
     seo_keywords: "TEXT NULL",

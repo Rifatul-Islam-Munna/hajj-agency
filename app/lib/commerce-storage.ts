@@ -1,4 +1,4 @@
-import type { ResultSetHeader } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { query } from "./auth-db";
 import { ensureCmsStorage } from "./cms-storage";
 
@@ -165,19 +165,16 @@ async function seedDefaults() {
      VALUES (1, 0, 1, '', '', 'BDT')`,
   );
 
-  await query<ResultSetHeader>(
-    `INSERT IGNORE INTO package_booking_settings
-     (package_id, category_id, base_price, currency, pricing_mode, min_travellers, max_travellers, deposit_amount, booking_enabled)
-     SELECT p.id,
-       CASE WHEN LOWER(p.category) LIKE '%umrah%' THEN 2 ELSE 1 END,
-       CASE
-         WHEN REGEXP_REPLACE(p.price, '[^0-9.]', '') REGEXP '^[0-9]+(\\.[0-9]+)?$'
-         THEN CAST(REGEXP_REPLACE(p.price, '[^0-9.]', '') AS DECIMAL(12,2))
-         ELSE 0
-       END,
-       'BDT', 'per_person', 1, 10, 0, 1
-     FROM packages p`,
-  );
+  interface SeedPackageRow extends RowDataPacket { id: number; category: string; price: string }
+  const packages = await query<SeedPackageRow[]>("SELECT id, category, price FROM packages");
+  for (const item of packages) {
+    await query<ResultSetHeader>(
+      `INSERT IGNORE INTO package_booking_settings
+       (package_id, category_id, base_price, currency, pricing_mode, min_travellers, max_travellers, deposit_amount, booking_enabled)
+       VALUES (?, ?, ?, 'BDT', 'per_person', 1, 10, 0, 1)`,
+      [item.id, item.category.toLowerCase().includes("umrah") ? 2 : 1, priceNumber(item.price)],
+    );
+  }
 
   const defaults = [
     ["Full name", "full_name", "text", "Name as shown on passport", "", 1, 1, 1],
@@ -200,4 +197,9 @@ async function seedDefaults() {
     `UPDATE site_settings SET cta_text = 'Join Now', cta_url = '/register'
      WHERE id = 1 AND (cta_text = '' OR cta_text = 'View Packages')`,
   );
+}
+
+function priceNumber(value: string) {
+  const parsed = Number(String(value || "").replace(/[^0-9.]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
 }

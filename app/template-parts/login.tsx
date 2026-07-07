@@ -36,7 +36,7 @@ export default function LoginSection() {
       ? requested
       : data.redirect || "/";
     router.replace(destination);
-    router.refresh();
+    window.location.assign(destination);
   }
 
   return (

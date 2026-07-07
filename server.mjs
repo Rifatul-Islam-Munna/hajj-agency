@@ -50,8 +50,22 @@ async function logStartupHealth() {
   try {
     const connection = await mysql.createConnection({ ...config, connectTimeout: 5000 });
     const [rows] = await connection.query("SELECT DATABASE() AS db_name, CURRENT_USER() AS db_user");
+    const [userTables] = await connection.query("SHOW TABLES LIKE 'users'");
+    const [userColumns] = await connection.query("SHOW COLUMNS FROM users").catch(() => [[]]);
+    const [adminRows] = await connection.query(
+      "SELECT id, email, role FROM users WHERE role = 'super_admin' OR email = ? LIMIT 5",
+      [process.env.SUPER_ADMIN_EMAIL || ""],
+    ).catch(() => [[]]);
     await connection.end();
     console.log("STARTUP_DB_OK", rows[0]);
+    console.log("STARTUP_AUTH_TABLE", {
+      usersTable: userTables.length > 0,
+      columns: userColumns.map((column) => column.Field),
+      adminUsers: adminRows.map((user) => ({ id: user.id, email: user.email, role: user.role })),
+      envAdminEmail: process.env.SUPER_ADMIN_EMAIL || "",
+      envAdminPasswordSet: Boolean(process.env.SUPER_ADMIN_PASSWORD),
+      sessionSecretSet: Boolean(process.env.ADMIN_SESSION_SECRET),
+    });
   } catch (error) {
     console.error("STARTUP_DB_FAILED", {
       code: error.code,
