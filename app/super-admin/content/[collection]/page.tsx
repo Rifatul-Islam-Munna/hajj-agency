@@ -5,6 +5,7 @@ import SimpleRecordsEditor from "../../simpleRecordsEditor";
 const config: Record<string, { title: string; collections: string[] }> = {
   slider: { title: "Hero Slider", collections: ["slider"] },
   faq: { title: "Homepage FAQ", collections: ["faq"] },
+  pillars: { title: "Five Pillars", collections: ["pillars"] },
   services: { title: "Services", collections: ["services"] },
   guides: { title: "Meet Our Islamic Scholars", collections: ["guides"] },
   testimonials: { title: "Testimonials", collections: ["testimonials"] },

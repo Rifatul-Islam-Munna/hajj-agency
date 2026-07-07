@@ -6,6 +6,14 @@ import { ColorField, Field } from "./editorFields";
 import ImageUploadField from "./imageUploadField";
 import RichTextEditor from "./richTextEditor";
 
+function readExtra(value: string) {
+  try { return JSON.parse(value || "{}") as Record<string, string>; } catch { return {}; }
+}
+
+function writeExtra(section: CmsSection, patch: Record<string, string>) {
+  return JSON.stringify({ ...readExtra(section.extra_json), ...patch });
+}
+
 export default function SectionEditor({ section, onChange, defaultOpen }: {
   section: CmsSection;
   onChange: (patch: Partial<CmsSection>) => void;
@@ -44,6 +52,13 @@ export default function SectionEditor({ section, onChange, defaultOpen }: {
         <Field label="Button URL" value={section.button_url} onChange={(button_url) => onChange({ button_url })} />
         <ColorField label={section.section_key === "packages-grid" ? "Tab active color" : "Button background"} value={section.button_bg_color} onChange={(button_bg_color) => onChange({ button_bg_color })} />
         <ColorField label={section.section_key === "packages-grid" ? "Tab hover border color" : "Button hover color"} value={section.button_hover_color} onChange={(button_hover_color) => onChange({ button_hover_color })} />
+        {section.section_key === "about" && (
+          <>
+            <div className="admin-subsection-title full">Audio Player</div>
+            <Field label="Audio title" value={readExtra(section.extra_json).audio_title || ""} onChange={(audio_title) => onChange({ extra_json: writeExtra(section, { audio_title }) })} />
+            <Field label="Audio URL" value={readExtra(section.extra_json).audio_url || ""} onChange={(audio_url) => onChange({ extra_json: writeExtra(section, { audio_url }) })} placeholder="https://example.com/audio.mp3" help="Homepage About player audio file URL." />
+          </>
+        )}
       </div>
     </details>
   );

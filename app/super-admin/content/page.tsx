@@ -1,9 +1,10 @@
-import { CircleHelp, HandHeart, Images, Link2, MessageSquareQuote, UserRoundCheck } from "lucide-react";
+import { CircleHelp, Columns3, HandHeart, Images, Link2, MessageSquareQuote, UserRoundCheck } from "lucide-react";
 import Link from "next/link";
 
 const sections = [
   { slug: "slider", title: "Hero Slider", text: "Add, edit and reorder homepage slider items.", icon: Images },
   { slug: "faq", title: "Homepage FAQ", text: "Questions and rich-text answers shown on the homepage.", icon: CircleHelp },
+  { slug: "pillars", title: "Five Pillars", text: "Pillar cards, images, text and links shown on the homepage.", icon: Columns3 },
   { slug: "services", title: "Services", text: "Hajj and Umrah service cards and details.", icon: HandHeart },
   { slug: "guides", title: "Islamic Scholars", text: "Scholar profiles, photos, roles and social links.", icon: UserRoundCheck },
   { slug: "testimonials", title: "Testimonials", text: "Pilgrim reviews displayed on the homepage.", icon: MessageSquareQuote },

@@ -4,11 +4,14 @@
 
 import { useEffect, useRef, useState } from "react";
 
-export default function QuranAudioPlayer() {
+type Track = { title: string; src: string };
+
+export default function QuranAudioPlayer({ tracks }: { tracks?: Track[] }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Audio Playlist
-  const playlist = [
+  const customTracks = tracks?.filter((track) => track.src.trim());
+  const playlist = customTracks?.length ? customTracks : [
     {
       title: "Surah - Al - Fatiha (001)",
       src: "https://server8.mp3quran.net/download/afs/001.mp3",

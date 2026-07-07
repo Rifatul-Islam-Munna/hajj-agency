@@ -4,15 +4,15 @@
 .cms-managed-button::before { background: var(--cms-button-bg) !important; }
 .cms-managed-button:hover::before { background: var(--cms-button-hover, var(--cms-button-bg)) !important; }
 .cms-global-buttons .green_btn:not(.cms-managed-button),
-.cms-global-buttons .yellow_btn:not(.cms-managed-button) { background-color: var(--cms-button-bg) !important; border-color: var(--cms-button-bg) !important; }
-.cms-global-buttons .green_border_btn:not(.cms-managed-button) { border-color: var(--cms-button-bg) !important; color: var(--cms-button-bg) !important; }
+.cms-global-buttons .yellow_btn:not(.cms-managed-button) { background-color: var(--cms-button-bg, var(--blue)) !important; border-color: var(--cms-button-bg, var(--blue)) !important; }
+.cms-global-buttons .green_border_btn:not(.cms-managed-button) { border-color: var(--cms-button-bg, var(--blue)) !important; color: var(--cms-button-bg, var(--blue)) !important; }
 .cms-global-buttons .green_btn:not(.cms-managed-button)::before,
-.cms-global-buttons .yellow_btn:not(.cms-managed-button)::before { background: var(--cms-button-bg) !important; }
+.cms-global-buttons .yellow_btn:not(.cms-managed-button)::before { background: var(--cms-button-bg, var(--blue)) !important; }
 .cms-global-buttons .green_btn:not(.cms-managed-button):hover,
-.cms-global-buttons .yellow_btn:not(.cms-managed-button):hover { background-color: var(--cms-button-hover, var(--cms-button-bg)) !important; border-color: var(--cms-button-hover, var(--cms-button-bg)) !important; }
-.cms-global-buttons .green_border_btn:not(.cms-managed-button):hover { background-color: var(--cms-button-hover, var(--cms-button-bg)) !important; border-color: var(--cms-button-hover, var(--cms-button-bg)) !important; color: #fff !important; }
+.cms-global-buttons .yellow_btn:not(.cms-managed-button):hover { background-color: var(--cms-button-hover, var(--green)) !important; border-color: var(--cms-button-hover, var(--green)) !important; }
+.cms-global-buttons .green_border_btn:not(.cms-managed-button):hover { background-color: var(--cms-button-hover, var(--green)) !important; border-color: var(--cms-button-hover, var(--green)) !important; color: #fff !important; }
 .cms-global-buttons .green_btn:not(.cms-managed-button):hover::before,
-.cms-global-buttons .yellow_btn:not(.cms-managed-button):hover::before { background: var(--cms-button-hover, var(--cms-button-bg)) !important; }
+.cms-global-buttons .yellow_btn:not(.cms-managed-button):hover::before { background: var(--cms-button-hover, var(--green)) !important; }
 .home-slider .single-slide { min-height: 760px; overflow: hidden; }
 .home-slider .single-slide .row.position-relative { min-height: 760px; }
 .home-slider .hslider_image { width: min(46vw, 760px); height: 100%; min-height: 760px; right: 0; top: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: flex-end; overflow: visible; pointer-events: none; }

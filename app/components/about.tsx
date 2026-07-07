@@ -3,7 +3,21 @@
 import AudioPlayer from '../components/audioPlayer';
 import Link from "next/link";
 import { motion } from "framer-motion";
-export default function AboutSection() {
+import { getCmsPage } from "../lib/cms-db";
+
+function parseAudioTracks(value?: string) {
+  try {
+    const parsed = JSON.parse(value || "{}") as { audio_title?: string; audio_url?: string };
+    return parsed.audio_url ? [{ title: parsed.audio_title || "Listen To Quran Audio", src: parsed.audio_url }] : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export default async function AboutSection() {
+  const page = await getCmsPage("home").catch(() => null);
+  const about = page?.sections.find((section) => section.section_key === "about");
+  const audioTracks = parseAudioTracks(about?.extra_json);
   return (
     <section className="about-area section-padding">
       <div className="container">
@@ -16,7 +30,7 @@ export default function AboutSection() {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <AudioPlayer/>
+              <AudioPlayer tracks={audioTracks}/>
             </motion.div>
             
 
