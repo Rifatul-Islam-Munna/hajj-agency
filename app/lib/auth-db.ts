@@ -1,25 +1,34 @@
 import crypto from "crypto";
 import mysql from "mysql2/promise";
 
-let pool: mysql.Pool | null = null;
-let ready: Promise<void> | null = null;
-let appInitStarted = false;
+type DatabaseGlobals = typeof globalThis & {
+  __hajjMysqlPool?: mysql.Pool;
+  __hajjAuthReady?: Promise<void>;
+  __hajjAuthInitStarted?: boolean;
+};
+
+const databaseGlobals = globalThis as DatabaseGlobals;
 
 function getPool() {
-  if (!pool) {
-    pool = mysql.createPool({
+  if (!databaseGlobals.__hajjMysqlPool) {
+    databaseGlobals.__hajjMysqlPool = mysql.createPool({
       host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
       port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),
       user: getEnv("DB_USER", "MYSQL_USER", "Username"),
       password: getEnv("DB_PASSWORD", "MYSQL_PASSWORD", "Password"),
       database: getEnv("DB_NAME", "MYSQL_DATABASE", "Database"),
       waitForConnections: true,
-      connectionLimit: 10,
-      connectTimeout: 3000,
+      connectionLimit: Math.max(2, Number(process.env.DB_CONNECTION_LIMIT || 5)),
+      maxIdle: Math.max(1, Number(process.env.DB_MAX_IDLE || 3)),
+      idleTimeout: 60000,
+      queueLimit: 0,
+      connectTimeout: 5000,
+      enableKeepAlive: true,
+      keepAliveInitialDelay: 0,
     });
   }
 
-  return pool;
+  return databaseGlobals.__hajjMysqlPool;
 }
 
 function getEnv(...names: string[]) {
@@ -32,8 +41,8 @@ function getEnv(...names: string[]) {
 }
 
 export function initAuthDatabaseOnce() {
-  if (appInitStarted) return;
-  appInitStarted = true;
+  if (databaseGlobals.__hajjAuthInitStarted) return;
+  databaseGlobals.__hajjAuthInitStarted = true;
 
   ensureUsersTable().catch((error) => {
     const err = error as { code?: string; message?: string };
@@ -42,16 +51,14 @@ export function initAuthDatabaseOnce() {
 }
 
 export async function ensureUsersTable() {
-  if (!ready) {
-    ready = initializeAuthDatabase().catch((error) => {
-      ready = null;
-      pool?.end().catch(() => undefined);
-      pool = null;
+  if (!databaseGlobals.__hajjAuthReady) {
+    databaseGlobals.__hajjAuthReady = initializeAuthDatabase().catch((error) => {
+      databaseGlobals.__hajjAuthReady = undefined;
       throw error;
     });
   }
 
-  return ready;
+  return databaseGlobals.__hajjAuthReady;
 }
 
 async function initializeAuthDatabase() {
@@ -76,7 +83,7 @@ async function initializeAuthDatabase() {
       )
     `);
 
-  const [columns] = await db.execute<mysql.RowDataPacket[]>(
+  const [columns] = await db.query<mysql.RowDataPacket[]>(
     `SELECT COLUMN_NAME
      FROM INFORMATION_SCHEMA.COLUMNS
      WHERE TABLE_SCHEMA = DATABASE()
@@ -99,40 +106,40 @@ async function seedSuperAdmin() {
 
   const db = getPool();
   const passwordHash = hashPassword(password);
-  const [envUsers] = await db.execute<mysql.RowDataPacket[]>(
+  const [envUsers] = await db.query<mysql.RowDataPacket[]>(
     "SELECT id FROM users WHERE email = ? LIMIT 1",
     [email],
   );
 
   if (envUsers.length > 0) {
     const superAdminId = envUsers[0].id;
-    await db.execute("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
+    await db.query("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
       superAdminId,
     ]);
-    await db.execute(
+    await db.query(
       "UPDATE users SET role = 'super_admin', password_hash = ? WHERE id = ?",
       [passwordHash, superAdminId],
     );
     return;
   }
 
-  const [admins] = await db.execute<mysql.RowDataPacket[]>(
+  const [admins] = await db.query<mysql.RowDataPacket[]>(
     "SELECT id FROM users WHERE role = 'super_admin' ORDER BY id ASC",
   );
 
   if (admins.length > 0) {
     const [firstAdmin] = admins;
-    await db.execute("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
+    await db.query("UPDATE users SET role = 'user' WHERE role = 'super_admin' AND id <> ?", [
       firstAdmin.id,
     ]);
-    await db.execute(
+    await db.query(
       "UPDATE users SET email = ?, password_hash = ? WHERE id = ?",
       [email, passwordHash, firstAdmin.id],
     );
     return;
   }
 
-  await db.execute(
+  await db.query(
     `INSERT INTO users (nid_number, nid_name, date_of_birth, phone, email, password_hash, role)
      VALUES (?, ?, ?, ?, ?, ?, 'super_admin')`,
     ["SUPER_ADMIN", "Super Admin", "1970-01-01", "SUPER_ADMIN", email, passwordHash],
@@ -144,7 +151,8 @@ export async function query<T extends mysql.RowDataPacket[] | mysql.ResultSetHea
   values: unknown[] = [],
 ) {
   await ensureUsersTable();
-  const [rows] = await getPool().execute<T>(sql, values);
+  const safeValues = values.map((value) => value === undefined ? null : value);
+  const [rows] = await getPool().query<T>(sql, safeValues);
   return rows;
 }
 
