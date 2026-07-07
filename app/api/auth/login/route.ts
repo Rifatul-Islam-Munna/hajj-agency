@@ -51,7 +51,26 @@ export async function POST(request: Request) {
     }
     return response;
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: "Login failed" }, { status: 500 });
+    const errorId = `login-${Date.now().toString(36)}`;
+    const err = error as { code?: string; errno?: number; sqlState?: string; sqlMessage?: string; message?: string };
+    console.error("AUTH_LOGIN_FAILED", {
+      errorId,
+      code: err.code,
+      errno: err.errno,
+      sqlState: err.sqlState,
+      sqlMessage: err.sqlMessage,
+      message: err.message,
+      dbHost: process.env.DB_HOST || process.env.MYSQL_HOST || process.env.Host || "",
+      dbName: process.env.DB_NAME || process.env.MYSQL_DATABASE || process.env.Database || "",
+      dbUser: process.env.DB_USER || process.env.MYSQL_USER || process.env.Username || "",
+    });
+    return NextResponse.json(
+      {
+        message: "Login failed",
+        errorId,
+        ...(process.env.DEBUG_AUTH_ERRORS === "true" ? { code: err.code, sqlMessage: err.sqlMessage || err.message } : {}),
+      },
+      { status: 500 },
+    );
   }
 }

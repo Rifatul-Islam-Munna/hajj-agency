@@ -100,6 +100,9 @@ async function initialize() {
   await query<ResultSetHeader>(
     `UPDATE site_settings SET footer_description = COALESCE(footer_description, '<p>Trusted Hajj and Umrah packages, guidance and travel support.</p>'), footer_newsletter_description = COALESCE(footer_newsletter_description, '<p>Subscribe and receive our Hajj and Umrah offers and updates.</p>'), contact_info_description = COALESCE(contact_info_description, '<p>Feel free to reach out to us with any questions about Hajj and Umrah.</p>') WHERE id = 1`,
   );
+  await query<ResultSetHeader>(
+    `UPDATE site_settings SET cta_text = 'Join Now', cta_url = '/register' WHERE id = 1 AND (cta_text = '' OR cta_text = 'View Packages')`,
+  );
   await seedContentRecords();
 }
 
