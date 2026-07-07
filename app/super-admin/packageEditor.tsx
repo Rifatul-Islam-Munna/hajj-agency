@@ -33,12 +33,22 @@ export default function PackageEditor({ initialPackage, initialSettings, initial
   const [tiers, setTiers] = useState<PackagePriceTier[]>(initialTiers || []);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const fixedPeopleCount = Math.max(1, settings.min_travellers || settings.max_travellers || 1);
 
   function patchTier(index: number, update: Partial<PackagePriceTier>) {
     setTiers((current) => current.map((tier, tierIndex) => tierIndex === index ? { ...tier, ...update } : tier));
   }
   function addTier() {
-    setTiers((current) => [...current, { id: 0, package_id: item.id, label: "", people_count: 1, amount: 0, enabled: true, sort_order: current.length }]);
+    setTiers((current) => [...current, { id: 0, package_id: item.id, label: "", people_count: fixedPeopleCount, amount: 0, enabled: true, sort_order: current.length }]);
+  }
+  function setFixedPeopleCount(value: string) {
+    const count = Math.max(1, Number(value) || 1);
+    setSettings((current) => ({ ...current, min_travellers: count, max_travellers: count }));
+  }
+  function buildBookingSettings(packageId: number) {
+    const counts = tiers.map((tier) => Math.max(1, Number(tier.people_count) || 1)).filter((_, index) => tiers[index].enabled !== false);
+    if (counts.length === 0) return { ...settings, package_id: packageId, min_travellers: fixedPeopleCount, max_travellers: fixedPeopleCount };
+    return { ...settings, package_id: packageId, min_travellers: Math.min(...counts), max_travellers: Math.max(...counts) };
   }
 
   async function save() {
@@ -54,7 +64,16 @@ export default function PackageEditor({ initialPackage, initialSettings, initial
     const bookingResponse = await fetch("/api/management/package-booking", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ settings: { ...settings, package_id: saved.id }, tiers: tiers.map((tier) => ({ ...tier, package_id: saved.id })) }),
+      body: JSON.stringify({
+        settings: buildBookingSettings(saved.id),
+        tiers: tiers.map((tier, index) => ({
+          ...tier,
+          package_id: saved.id,
+          people_count: Math.max(1, Number(tier.people_count) || 1),
+          label: tier.label.trim() || `${Math.max(1, Number(tier.people_count) || 1)} People`,
+          sort_order: index,
+        })),
+      }),
     });
     const bookingData = await bookingResponse.json();
     setSaving(false);
@@ -78,27 +97,30 @@ export default function PackageEditor({ initialPackage, initialSettings, initial
     </section>
 
     <section className="admin-section-card">
-      <div className="admin-section-head"><div><h3><Users size={19} /> Booking & Traveller Settings</h3><p className="admin-subtitle">The checkout form repeats traveller fields for the number selected by the customer.</p></div></div>
+      <div className="admin-section-head"><div><h3><Users size={19} /> Booking & Traveller Settings</h3><p className="admin-subtitle">Set how many people this package is for. Checkout will collect that many traveller forms.</p></div></div>
       <div className="admin-fields">
         <Field label="Base price" type="number" value={String(settings.base_price)} onChange={(value) => setSettings((current) => ({ ...current, base_price: Number(value) || 0 }))} />
         <Field label="Currency" value={settings.currency} onChange={(currency) => setSettings((current) => ({ ...current, currency: currency.toUpperCase() }))} />
         <div className="admin-field"><label>Pricing mode</label><select value={settings.pricing_mode} onChange={(event) => setSettings((current) => ({ ...current, pricing_mode: event.target.value as PackageBookingSettings["pricing_mode"] }))}><option value="per_person">Price per traveller</option><option value="fixed">Fixed package price</option></select></div>
         <Field label="Deposit amount (optional)" type="number" value={String(settings.deposit_amount)} onChange={(value) => setSettings((current) => ({ ...current, deposit_amount: Number(value) || 0 }))} />
-        <Field label="Minimum travellers" type="number" value={String(settings.min_travellers)} onChange={(value) => setSettings((current) => ({ ...current, min_travellers: Math.max(1, Number(value) || 1) }))} />
-        <Field label="Maximum travellers" type="number" value={String(settings.max_travellers)} onChange={(value) => setSettings((current) => ({ ...current, max_travellers: Math.max(1, Number(value) || 1) }))} />
+        <Field label="People in this package" type="number" value={String(fixedPeopleCount)} onChange={setFixedPeopleCount} />
         <div className="admin-field full"><label className="admin-toggle"><input type="checkbox" checked={settings.booking_enabled} onChange={(event) => setSettings((current) => ({ ...current, booking_enabled: event.target.checked }))} /> Allow customers to order this package</label></div>
       </div>
     </section>
 
     <section className="admin-section-card">
-      <div className="admin-section-head"><div><h3>Optional Price Tiers</h3><p className="admin-subtitle">Examples: Couple package, Family of 4, Group of 10. Leave empty to calculate from the base price.</p></div><button type="button" className="admin-button secondary" onClick={addTier}><Plus size={17} /> Add Tier</button></div>
-      <div className="admin-tier-list">{tiers.map((tier, index) => <div className="admin-tier-row" key={`${tier.id}-${index}`}>
-        <input value={tier.label} onChange={(event) => patchTier(index, { label: event.target.value })} placeholder="Family of 4" />
-        <input type="number" value={tier.people_count} onChange={(event) => patchTier(index, { people_count: Number(event.target.value) || 1 })} aria-label="People count" />
-        <input type="number" value={tier.amount} onChange={(event) => patchTier(index, { amount: Number(event.target.value) || 0 })} aria-label="Amount" />
+      <div className="admin-section-head"><div><h3>People & Price Options</h3><p className="admin-subtitle">Add choices like 2 people, 4 people or 10 people. Selected option controls checkout traveller count.</p></div><button type="button" className="admin-button secondary" onClick={addTier}><Plus size={17} /> Add Option</button></div>
+      <div className="admin-tier-list">
+        {tiers.length > 0 && <div className="admin-tier-row admin-tier-header"><span>Option name</span><span>People</span><span>Total price</span><span>Status</span><span></span></div>}
+        {tiers.map((tier, index) => <div className="admin-tier-row" key={`${tier.id}-${index}`}>
+        <input value={tier.label} onChange={(event) => patchTier(index, { label: event.target.value })} placeholder={`${tier.people_count || 1} People`} aria-label="Option label" />
+        <input type="number" value={tier.people_count} onChange={(event) => patchTier(index, { people_count: Math.max(1, Number(event.target.value) || 1) })} aria-label="People count" placeholder="People" />
+        <input type="number" value={tier.amount} onChange={(event) => patchTier(index, { amount: Number(event.target.value) || 0 })} aria-label="Total price" placeholder="Total price" />
         <label className="admin-toggle"><input type="checkbox" checked={tier.enabled} onChange={(event) => patchTier(index, { enabled: event.target.checked })} /> Active</label>
         <button type="button" className="admin-icon-button danger" onClick={() => setTiers((current) => current.filter((_, tierIndex) => tierIndex !== index))}><Trash2 size={16} /></button>
-      </div>)}</div>
+      </div>)}
+        {tiers.length === 0 && <div className="admin-empty">No extra options. Customers will book exactly {fixedPeopleCount} people.</div>}
+      </div>
     </section>
 
     <div className="admin-actions"><button className="admin-button" onClick={save} disabled={saving}><Save size={18} /> {saving ? "Saving..." : "Save Package"}</button></div>

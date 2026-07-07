@@ -32,6 +32,7 @@
 .admin-back { color:var(--admin-green); text-decoration:none; display:inline-flex; align-items:center; gap:5px; margin-bottom:9px; font-size:13px; font-weight:700; }
 .admin-tier-list { display:grid; gap:10px; }
 .admin-tier-row { display:grid; grid-template-columns:2fr 120px 160px auto 40px; gap:9px; align-items:center; }
+.admin-tier-header { color:#64746d; font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
 .admin-tier-row input { width:100%; border:1px solid #cfdad5; border-radius:8px; padding:10px; }
 .admin-detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
 .admin-summary-list { display:grid; gap:0; margin:16px 0 0; }

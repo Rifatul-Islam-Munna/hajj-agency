@@ -1,13 +1,15 @@
 import Link from "next/link";
 import type { PublicSiteSettings } from "../lib/cms-db";
+import type { HeaderCta } from "./headerCta";
 
 type Props = {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
   settings: PublicSiteSettings;
+  cta: HeaderCta | null;
 };
 
-export default function Offcanvas({ isOpen, setIsOpen, settings }: Props) {
+export default function Offcanvas({ isOpen, setIsOpen, settings, cta }: Props) {
   const close = () => setIsOpen(false);
   const navigation = settings.nav_items.filter((item) => item.enabled);
   return (
@@ -43,7 +45,7 @@ export default function Offcanvas({ isOpen, setIsOpen, settings }: Props) {
                   {settings.topbar_email && <li className="d-flex align-items-center"><i className="fas fa-envelope me-2"></i><a href={`mailto:${settings.topbar_email}`}>{settings.topbar_email}</a></li>}
                   {settings.topbar_phone && <li className="d-flex align-items-center"><i className="fas fa-phone me-2"></i><a href={`tel:${settings.topbar_phone.replace(/[^\d+]/g, "")}`}>{settings.topbar_phone}</a></li>}
                 </ul>
-                {settings.cta_text && <div className="header-button mt-4"><Link href={settings.cta_url || "/packages"} onClick={close} className="green_btn text-center"><span>{settings.cta_text}</span></Link></div>}
+                {cta && <div className="header-button mt-4"><Link href={cta.href} onClick={close} className="green_btn text-center"><span>{cta.text}</span></Link></div>}
               </div>
             </div>
           </div>

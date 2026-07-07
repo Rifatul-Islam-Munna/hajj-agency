@@ -1,6 +1,6 @@
 import type { RowDataPacket } from "mysql2";
 import { cookies } from "next/headers";
-import { query } from "./auth-db";
+import { authQuery } from "./auth-db";
 import { readSessionToken } from "./session-token";
 
 interface UserRow extends RowDataPacket {
@@ -14,7 +14,7 @@ export async function getManagementUser() {
   const cookieStore = await cookies();
   const token = readSessionToken(cookieStore.get("management_session")?.value);
   if (!token) return null;
-  const rows = await query<UserRow[]>(
+  const rows = await authQuery<UserRow[]>(
     "SELECT id, nid_name, email, role FROM users WHERE id = ? LIMIT 1",
     [token.userId],
   );

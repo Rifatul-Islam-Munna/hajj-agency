@@ -72,6 +72,12 @@
 .admin-submenu-builder { margin-top: 14px; padding: 14px; border-radius: 10px; background: white; border: 1px dashed #cfdad5; display: grid; gap: 10px; }
 .admin-submenu-row { display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 8px; align-items: center; }
 .admin-save-sticky { position: sticky; bottom: 18px; justify-self: end; box-shadow: 0 10px 30px rgba(15,107,79,.25); z-index: 10; }
+.admin-tabs { display: inline-flex; width: fit-content; gap: 4px; padding: 4px; border: 1px solid var(--admin-border); border-radius: 10px; background: #fff; }
+.admin-tabs button { border: 0; border-radius: 7px; padding: 10px 18px; background: transparent; color: var(--admin-muted); font-weight: 800; cursor: pointer; }
+.admin-tabs button.active { background: var(--admin-green); color: #fff; }
+.admin-editor-details > summary { cursor: pointer; list-style: none; margin-bottom: 0; }
+.admin-editor-details[open] > summary { margin-bottom: 18px; }
+.admin-editor-details > summary::-webkit-details-marker { display: none; }
 @media (max-width: 1000px) {
   .admin-shell { grid-template-columns: 1fr; }
   .admin-sidebar { position: static; height: auto; min-height: 0; }

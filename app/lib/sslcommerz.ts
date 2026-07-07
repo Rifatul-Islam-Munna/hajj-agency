@@ -10,7 +10,7 @@ const liveValidator = "https://securepay.sslcommerz.com/validator/api/validation
 export async function initiateSslcommerz(order: OrderRecord, origin: string) {
   const settings = await getPaymentSettings();
   if (!settings.enabled || !settings.store_id || !settings.store_password) throw new Error("PAYMENT_NOT_CONFIGURED");
-  if (order.total_amount < 10 || order.total_amount > 500000) throw new Error("PAYMENT_AMOUNT_OUT_OF_RANGE");
+  if (order.total_amount < 10) throw new Error("PAYMENT_AMOUNT_OUT_OF_RANGE");
 
   const transactionId = `HA${order.id}${Date.now().toString(36).toUpperCase()}`.slice(0, 30);
   const base = origin.replace(/\/$/, "");

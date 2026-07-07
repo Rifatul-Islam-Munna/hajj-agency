@@ -77,11 +77,11 @@ export async function replacePackagePriceTiers(packageId: number, tiers: Partial
   await ensureCommerceStorage();
   await query<ResultSetHeader>("DELETE FROM package_price_tiers WHERE package_id = ?", [packageId]);
   for (const raw of tiers.slice(0, 30)) {
-    const label = clean(raw.label);
-    if (!label) continue;
+    const peopleCount = Math.max(1, Number(raw.people_count) || 1);
+    const label = clean(raw.label) || `${peopleCount} People`;
     await query<ResultSetHeader>(
       `INSERT INTO package_price_tiers (package_id, label, people_count, amount, enabled, sort_order) VALUES (?, ?, ?, ?, ?, ?)`,
-      [packageId, label, Math.max(1, Number(raw.people_count) || 1), Math.max(0, Number(raw.amount) || 0), raw.enabled !== false, Number(raw.sort_order) || 0],
+      [packageId, label, peopleCount, Math.max(0, Number(raw.amount) || 0), raw.enabled !== false, Number(raw.sort_order) || 0],
     );
   }
   return getPackagePriceTiers(packageId);

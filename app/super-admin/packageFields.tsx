@@ -3,7 +3,7 @@
 import { Bot, Code2, Search, Share2 } from "lucide-react";
 import type { PackageRecord } from "../lib/cms-db";
 import type { PackageCategory } from "../lib/commerce-types";
-import { Field } from "./editorFields";
+import { ColorField, Field } from "./editorFields";
 import ImageUploadField from "./imageUploadField";
 import RichTextEditor from "./richTextEditor";
 
@@ -32,6 +32,8 @@ export default function PackageFields({ item, onChange, categories = [], categor
       <ImageUploadField label="Package featured image" value={item.image_url} onChange={(image_url) => onChange({ image_url })} recommended="900 × 650 px" />
       <Field label="Button text" value={item.button_text} onChange={(button_text) => onChange({ button_text })} />
       <Field label="Custom button URL" value={item.button_url} onChange={(button_url) => onChange({ button_url })} help="Leave empty to use the package booking page." />
+      <ColorField label="Override card button color" value={item.button_bg_color} onChange={(button_bg_color) => onChange({ button_bg_color })} />
+      <ColorField label="Override card hover color" value={item.button_hover_color} onChange={(button_hover_color) => onChange({ button_hover_color })} />
 
       <details className="admin-details full">
         <summary><Search size={18} /> Package SEO settings</summary>

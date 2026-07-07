@@ -45,7 +45,7 @@ export default function PackageTable({ initialRows }: { initialRows: PackageAdmi
         <td><div className="admin-table-primary">{row.image_url ? <img src={row.image_url} alt="" /> : <div className="admin-table-placeholder" />}<div><strong>{row.title}</strong><small>/{row.slug}</small></div></div></td>
         <td><span className="admin-chip">{row.category_name || row.category}</span></td>
         <td><strong>{row.currency} {row.base_price.toLocaleString()}</strong><small>{row.pricing_mode === "per_person" ? " per traveller" : " fixed"}</small></td>
-        <td>{row.min_travellers}–{row.max_travellers}</td>
+        <td>{row.min_travellers === row.max_travellers ? row.min_travellers : `${row.min_travellers}-${row.max_travellers}`}</td>
         <td><span className={`admin-status ${row.enabled && row.booking_enabled ? "success" : "muted"}`}>{row.enabled && row.booking_enabled ? "Active" : "Draft"}</span>{row.featured && <span className="admin-status warning">Featured</span>}</td>
         <td><div className="admin-row-actions"><Link href={`/package-details/${row.slug}`} title="Preview"><Eye size={17} /></Link><Link href={`/super-admin/packages/${row.id}/edit`} title="Edit"><Edit3 size={17} /></Link><button title="Delete" onClick={() => remove(row)}><Trash2 size={17} /></button></div></td>
       </tr>)}</tbody>

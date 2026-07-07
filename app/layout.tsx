@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 import { Lexend } from "next/font/google";
 import ScrollToTop from "./layouts/backToTop";
 import Preloader from "./layouts/preloader";
-import { initAuthDatabaseOnce } from "./lib/auth-db";
-import { initCmsDatabaseOnce } from "./lib/cms-db";
 import { getSiteSettings } from "./lib/site-settings";
 import { headerDefaults } from "./layouts/headerDefaults";
 import "./cms.css";
@@ -47,8 +45,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  initAuthDatabaseOnce();
-  initCmsDatabaseOnce();
   const settings = await getSiteSettings().catch(() => headerDefaults);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") || "";
   const organizationSchema = JSON.stringify({

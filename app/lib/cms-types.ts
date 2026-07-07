@@ -144,6 +144,11 @@ export type SiteSettings = {
   topbar_email: string;
   topbar_phone: string;
   topbar_address: string;
+  header_topbar_background: string;
+  header_topbar_text_color: string;
+  header_topbar_link_color: string;
+  package_button_bg_color: string;
+  package_button_hover_color: string;
   sunrise_text: string;
   sunset_text: string;
   cta_text: string;

@@ -3,6 +3,7 @@ import mysql from "mysql2/promise";
 
 type DatabaseGlobals = typeof globalThis & {
   __hajjMysqlPool?: mysql.Pool;
+  __hajjMysqlPoolConfigKey?: string;
   __hajjAuthReady?: Promise<void>;
   __hajjAuthInitStarted?: boolean;
 };
@@ -10,16 +11,33 @@ type DatabaseGlobals = typeof globalThis & {
 const databaseGlobals = globalThis as DatabaseGlobals;
 
 function getPool() {
+  const config = {
+    host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
+    port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),
+    user: getEnv("DB_USER", "MYSQL_USER", "Username"),
+    password: getEnv("DB_PASSWORD", "MYSQL_PASSWORD", "Password"),
+    database: getEnv("DB_NAME", "MYSQL_DATABASE", "Database"),
+    connectionLimit: Math.max(1, Number(process.env.DB_CONNECTION_LIMIT || 2)),
+    maxIdle: Math.max(1, Number(process.env.DB_MAX_IDLE || 1)),
+  };
+  const configKey = JSON.stringify(config);
+
+  if (databaseGlobals.__hajjMysqlPool && databaseGlobals.__hajjMysqlPoolConfigKey !== configKey) {
+    void databaseGlobals.__hajjMysqlPool.end().catch(() => undefined);
+    databaseGlobals.__hajjMysqlPool = undefined;
+  }
+
   if (!databaseGlobals.__hajjMysqlPool) {
+    databaseGlobals.__hajjMysqlPoolConfigKey = configKey;
     databaseGlobals.__hajjMysqlPool = mysql.createPool({
-      host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
-      port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),
-      user: getEnv("DB_USER", "MYSQL_USER", "Username"),
-      password: getEnv("DB_PASSWORD", "MYSQL_PASSWORD", "Password"),
-      database: getEnv("DB_NAME", "MYSQL_DATABASE", "Database"),
+      host: config.host,
+      port: config.port,
+      user: config.user,
+      password: config.password,
+      database: config.database,
       waitForConnections: true,
-      connectionLimit: Math.max(2, Number(process.env.DB_CONNECTION_LIMIT || 5)),
-      maxIdle: Math.max(1, Number(process.env.DB_MAX_IDLE || 3)),
+      connectionLimit: config.connectionLimit,
+      maxIdle: config.maxIdle,
       idleTimeout: 60000,
       queueLimit: 0,
       connectTimeout: 5000,
@@ -150,10 +168,17 @@ export async function query<T extends mysql.RowDataPacket[] | mysql.ResultSetHea
   sql: string,
   values: unknown[] = [],
 ) {
-  await ensureUsersTable();
   const safeValues = values.map((value) => value === undefined ? null : value);
   const [rows] = await getPool().query<T>(sql, safeValues);
   return rows;
+}
+
+export async function authQuery<T extends mysql.RowDataPacket[] | mysql.ResultSetHeader>(
+  sql: string,
+  values: unknown[] = [],
+) {
+  await ensureUsersTable();
+  return query<T>(sql, values);
 }
 
 export function hashPassword(password: string) {

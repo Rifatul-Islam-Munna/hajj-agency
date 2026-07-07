@@ -2,16 +2,20 @@ import type { ResultSetHeader } from "mysql2";
 import { query } from "./auth-db";
 import { ensureCmsStorage } from "./cms-storage";
 
-let ready: Promise<void> | null = null;
+type CommerceStorageGlobals = typeof globalThis & {
+  __hajjCommerceReady?: Promise<void>;
+};
+
+const commerceStorageGlobals = globalThis as CommerceStorageGlobals;
 
 export function ensureCommerceStorage() {
-  if (!ready) {
-    ready = initialize().catch((error) => {
-      ready = null;
+  if (!commerceStorageGlobals.__hajjCommerceReady) {
+    commerceStorageGlobals.__hajjCommerceReady = initialize().catch((error) => {
+      commerceStorageGlobals.__hajjCommerceReady = undefined;
       throw error;
     });
   }
-  return ready;
+  return commerceStorageGlobals.__hajjCommerceReady;
 }
 
 async function initialize() {

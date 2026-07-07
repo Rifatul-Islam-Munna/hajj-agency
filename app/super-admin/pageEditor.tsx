@@ -7,6 +7,7 @@ import SectionEditor from "./sectionEditor";
 
 export default function PageEditor({ initialPage }: { initialPage: CmsPage }) {
   const [page, setPage] = useState(initialPage);
+  const [tab, setTab] = useState<"content" | "seo">("content");
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -48,14 +49,19 @@ export default function PageEditor({ initialPage }: { initialPage: CmsPage }) {
         <p className="admin-subtitle">Route: {page.route}</p>
       </div>
       {status && <div className="admin-notice">{status}</div>}
-      <PageSeoEditor page={page} onChange={changePage} />
-      {page.sections.map((section, index) => (
+      <div className="admin-tabs">
+        <button type="button" className={tab === "content" ? "active" : ""} onClick={() => setTab("content")}>Content</button>
+        <button type="button" className={tab === "seo" ? "active" : ""} onClick={() => setTab("seo")}>SEO</button>
+      </div>
+      {tab === "content" && page.sections.map((section, index) => (
         <SectionEditor
           key={section.section_key}
           section={section}
+          defaultOpen={index === 0}
           onChange={(patch) => changeSection(index, patch)}
         />
       ))}
+      {tab === "seo" && <PageSeoEditor page={page} onChange={changePage} />}
       <button className="admin-button" onClick={save} disabled={saving}>
         {saving ? "Saving..." : "Save All Changes"}
       </button>

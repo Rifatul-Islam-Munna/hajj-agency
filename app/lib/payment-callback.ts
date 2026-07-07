@@ -5,6 +5,7 @@ import { validateSslcommerzPayment } from "./sslcommerz";
 export async function readPaymentPayload(request: Request) {
   const type = request.headers.get("content-type") || "";
   if (type.includes("application/json")) return await request.json() as Record<string, string>;
+  if (request.method === "GET") return Object.fromEntries(new URL(request.url).searchParams.entries());
   const form = await request.formData();
   return Object.fromEntries(Array.from(form.entries()).map(([key, value]) => [key, String(value)]));
 }

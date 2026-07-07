@@ -22,11 +22,13 @@ function applySectionContent(root: HTMLElement, section: CmsSectionType) {
   const eyebrow = root.querySelector<HTMLElement>("[data-cms-eyebrow], .section-heading span, .section-title span, .subtitle");
   const title = root.querySelector<HTMLElement>("[data-cms-title], .section-heading h1, .section-heading h2, .section-title h1, .section-title h2, h1, h2");
   const description = root.querySelector<HTMLElement>("[data-cms-description], .section-heading p, .section-title p");
+  const breadcrumb = root.querySelector<HTMLElement>("[data-cms-breadcrumb]");
   const background = root.querySelector<HTMLElement>("[data-cms-background]");
   const image = Array.from(root.querySelectorAll<HTMLImageElement>("img")).find((item) => !item.src.includes("title.svg") && !item.src.includes("title-white.svg") && !item.src.includes("bismillah"));
   const button = root.querySelector<HTMLElement>("[data-cms-button], a.green_btn, a.green_border_btn, a.yellow_btn, button.green_btn, a[class*='btn']");
   if (section.eyebrow && eyebrow) eyebrow.textContent = section.eyebrow;
   if (section.title && title) title.textContent = section.title;
+  if (section.title && breadcrumb) breadcrumb.textContent = section.title;
   if (section.description && description) description.innerHTML = sanitizeRichHtml(section.description);
   if (section.image_url && background) background.style.backgroundImage = `url(${section.image_url})`;
   else if (section.image_url && image) image.src = section.image_url;

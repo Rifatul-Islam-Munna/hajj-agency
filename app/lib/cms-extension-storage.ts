@@ -2,16 +2,20 @@ import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { query } from "./auth-db";
 import { ensureCmsStorage } from "./cms-storage";
 
-let ready: Promise<void> | null = null;
+type ExtendedCmsStorageGlobals = typeof globalThis & {
+  __hajjExtendedCmsReady?: Promise<void>;
+};
+
+const extendedCmsStorageGlobals = globalThis as ExtendedCmsStorageGlobals;
 
 export function ensureExtendedCmsStorage() {
-  if (!ready) {
-    ready = initialize().catch((error) => {
-      ready = null;
+  if (!extendedCmsStorageGlobals.__hajjExtendedCmsReady) {
+    extendedCmsStorageGlobals.__hajjExtendedCmsReady = initialize().catch((error) => {
+      extendedCmsStorageGlobals.__hajjExtendedCmsReady = undefined;
       throw error;
     });
   }
-  return ready;
+  return extendedCmsStorageGlobals.__hajjExtendedCmsReady;
 }
 
 async function initialize() {
@@ -84,6 +88,11 @@ async function initialize() {
     contact_message_placeholder: "VARCHAR(191) NOT NULL DEFAULT 'Your Message'",
     contact_phone_secondary: "VARCHAR(80) NOT NULL DEFAULT ''",
     contact_email_secondary: "VARCHAR(191) NOT NULL DEFAULT ''",
+    header_topbar_background: "VARCHAR(500) NOT NULL DEFAULT ''",
+    header_topbar_text_color: "VARCHAR(32) NOT NULL DEFAULT ''",
+    header_topbar_link_color: "VARCHAR(32) NOT NULL DEFAULT ''",
+    package_button_bg_color: "VARCHAR(32) NOT NULL DEFAULT ''",
+    package_button_hover_color: "VARCHAR(32) NOT NULL DEFAULT ''",
   };
   for (const [column, definition] of Object.entries(columns)) {
     await ensureColumn("site_settings", column, definition);

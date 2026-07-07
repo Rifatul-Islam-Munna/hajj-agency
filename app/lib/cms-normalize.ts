@@ -12,8 +12,8 @@ export function normalizeSection(section: CmsSection): CmsSection {
     image_url: clean(section.image_url),
     button_text: clean(section.button_text),
     button_url: clean(section.button_url),
-    button_bg_color: clean(section.button_bg_color),
-    button_hover_color: clean(section.button_hover_color),
+    button_bg_color: hexColor(section.button_bg_color),
+    button_hover_color: hexColor(section.button_hover_color),
     extra_json: clean(section.extra_json) || "{}",
   };
 }
@@ -35,8 +35,8 @@ export function normalizePackage(input: Partial<PackageRecord>): PackageRecord {
     category: clean(input.category),
     button_text: clean(input.button_text) || "View Details",
     button_url: clean(input.button_url),
-    button_bg_color: clean(input.button_bg_color),
-    button_hover_color: clean(input.button_hover_color),
+    button_bg_color: hexColor(input.button_bg_color),
+    button_hover_color: hexColor(input.button_hover_color),
     featured: Boolean(input.featured),
     enabled: input.enabled !== false,
     sort_order: Number(input.sort_order) || 0,
@@ -49,6 +49,11 @@ export function normalizePackage(input: Partial<PackageRecord>): PackageRecord {
     robots_follow: input.robots_follow !== false,
     structured_data: clean(input.structured_data),
   };
+}
+
+export function hexColor(value: unknown) {
+  const color = clean(value);
+  return /^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(color) ? color : "";
 }
 
 export function clean(value: unknown) {

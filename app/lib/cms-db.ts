@@ -8,10 +8,15 @@ export { deleteContentRecord, getContentRecord, getContentRecords, saveContentRe
 export { createContactSubmission, deleteContactSubmission, getContactSubmissions, updateContactSubmission } from "./contact-store";
 export { getPublicSiteSettings, getSiteSettings, saveSiteSettings } from "./site-settings";
 
-let started = false;
+type CmsDbGlobals = typeof globalThis & {
+  __hajjCmsInitStarted?: boolean;
+};
+
+const cmsDbGlobals = globalThis as CmsDbGlobals;
+
 export function initCmsDatabaseOnce() {
-  if (started) return;
-  started = true;
+  if (cmsDbGlobals.__hajjCmsInitStarted) return;
+  cmsDbGlobals.__hajjCmsInitStarted = true;
   ensureCmsStorage().catch((error) => console.error("CMS database init failed", error));
 }
 export const ensureCmsDatabase = ensureCmsStorage;

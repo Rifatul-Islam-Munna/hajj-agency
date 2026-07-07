@@ -15,8 +15,8 @@ export async function POST(request: Request) {
     if (!image.type.startsWith("image/")) {
       return NextResponse.json({ message: "Only image files are allowed." }, { status: 400 });
     }
-    if (image.size > 32 * 1024 * 1024) {
-      return NextResponse.json({ message: "Image must be smaller than 32 MB." }, { status: 400 });
+    if (image.size > 30 * 1024 * 1024) {
+      return NextResponse.json({ message: "Image must be smaller than 30 MB." }, { status: 400 });
     }
 
     const settings = await getSiteSettings();

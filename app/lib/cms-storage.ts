@@ -3,16 +3,20 @@ import { query } from "./auth-db";
 import { createDefaultPages } from "./cms-defaults";
 import { createDefaultPackages } from "./package-defaults";
 
-let ready: Promise<void> | null = null;
+type CmsStorageGlobals = typeof globalThis & {
+  __hajjCmsReady?: Promise<void>;
+};
+
+const cmsStorageGlobals = globalThis as CmsStorageGlobals;
 
 export function ensureCmsStorage() {
-  if (!ready) {
-    ready = initialize().catch((error) => {
-      ready = null;
+  if (!cmsStorageGlobals.__hajjCmsReady) {
+    cmsStorageGlobals.__hajjCmsReady = initialize().catch((error) => {
+      cmsStorageGlobals.__hajjCmsReady = undefined;
       throw error;
     });
   }
-  return ready;
+  return cmsStorageGlobals.__hajjCmsReady;
 }
 
 async function initialize() {

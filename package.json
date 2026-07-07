@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "package:cwp": "node scripts/package-cwp.mjs",
+    "start": "node server.mjs",
     "lint": "eslint"
   },
   "dependencies": {

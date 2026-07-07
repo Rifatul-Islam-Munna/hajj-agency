@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
-import { query, verifyPassword } from "../../../lib/auth-db";
+import { authQuery, verifyPassword } from "../../../lib/auth-db";
 import { createSessionToken } from "../../../lib/session-token";
 
 interface UserRow extends RowDataPacket {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Phone/email and password required" }, { status: 400 });
     }
 
-    const users = await query<UserRow[]>(
+    const users = await authQuery<UserRow[]>(
       "SELECT id, nid_name, email, phone, role, password_hash FROM users WHERE email = ? OR phone = ? LIMIT 1",
       [identifier, identifier],
     );
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const isManager = user.role === "super_admin";
     const response = NextResponse.json({
       message: "Login successful",
-      redirect: isManager ? "/super-admin" : "/",
+      redirect: isManager ? "/super-admin" : "/dashboard",
       user: { id: user.id, name: user.nid_name, email: user.email, phone: user.phone, role: user.role },
     });
     const cookieOptions = {

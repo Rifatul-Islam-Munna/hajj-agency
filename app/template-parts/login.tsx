@@ -32,7 +32,7 @@ export default function LoginSection() {
       return;
     }
     const requested = searchParams.get("next");
-    const destination = data.user?.role === "super_admin" && requested?.startsWith("/super-admin")
+    const destination = requested?.startsWith("/") && !requested.startsWith("//")
       ? requested
       : data.redirect || "/";
     router.replace(destination);
