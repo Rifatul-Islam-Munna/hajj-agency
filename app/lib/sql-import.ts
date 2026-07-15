@@ -35,12 +35,7 @@ export async function importSqlDump(sql: string): Promise<ImportResult> {
     for (const statement of statements) {
       const createdTable = getCreateTargetTable(statement);
       if (createdTable) {
-        try {
-          await connection.query(statement);
-        } catch (error) {
-          const err = error as { code?: string; errno?: number };
-          if (err.code !== "ER_TABLE_EXISTS_ERROR" && err.errno !== 1050) throw error;
-        }
+        await runImportStatement(connection, statement);
         if (!clearedTables.has(createdTable)) {
           await clearTable(connection, createdTable);
           clearedTables.add(createdTable);
@@ -53,7 +48,7 @@ export async function importSqlDump(sql: string): Promise<ImportResult> {
         await clearTable(connection, targetTable);
         clearedTables.add(targetTable);
       }
-      await connection.query(statement);
+      await runImportStatement(connection, statement);
     }
     await connection.query("SET FOREIGN_KEY_CHECKS=1");
   } catch (error) {
@@ -115,6 +110,30 @@ function getCreateTargetTable(statement: string) {
 async function clearTable(connection: mysql.Connection, table: string) {
   await connection.query(`DELETE FROM ${table}`);
   await connection.query(`ALTER TABLE ${table} AUTO_INCREMENT = 1`).catch(() => undefined);
+}
+
+async function runImportStatement(connection: mysql.Connection, statement: string) {
+  try {
+    await connection.query(statement);
+  } catch (error) {
+    if (isIgnorableExistingSchemaError(error, statement)) return;
+    throw error;
+  }
+}
+
+function isIgnorableExistingSchemaError(error: unknown, statement: string) {
+  const err = error as { code?: string; errno?: number };
+  const schemaStatement = /^\s*(?:(?:--[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)\s*)*(CREATE|ALTER|DROP)\s+/i.test(statement);
+  if (!schemaStatement) return false;
+
+  return [
+    "ER_TABLE_EXISTS_ERROR",
+    "ER_DUP_FIELDNAME",
+    "ER_DUP_KEYNAME",
+    "ER_MULTIPLE_PRI_KEY",
+    "ER_CANT_DROP_FIELD_OR_KEY",
+    "ER_DUP_ENTRY",
+  ].includes(err.code || "") || [1050, 1060, 1061, 1062, 1068, 1091].includes(err.errno || 0);
 }
 
 function unquoteIdentifier(value: string) {
