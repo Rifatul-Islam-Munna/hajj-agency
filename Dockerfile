@@ -1,37 +1,53 @@
-FROM node:24-alpine AS deps
+# Stage 1: Install dependencies
+FROM node:lts AS deps
 WORKDIR /app
 
-ENV NEXT_TELEMETRY_DISABLED=1
+# Copy package files
+COPY package.json package-lock.json* ./
 
-COPY package.json package-lock.json ./
+# Install dependencies
 RUN npm ci
 
-FROM node:24-alpine AS builder
+# Stage 2: Build the application
+FROM node:lts AS builder
 WORKDIR /app
-
-ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Set environment variables for production build
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_ENV=production
+
+# Build the application
 RUN npm run build
 
-FROM node:24-alpine AS runner
+# Stage 3: Production runtime
+FROM node:lts AS runner
 WORKDIR /app
 
+# Set production mode
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV HOST=0.0.0.0
-ENV PORT=3000
 
-RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nextjs
+# Create a non-root user for security
+RUN groupadd --gid 1001 nodejs || true
+RUN useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs || true
 
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy necessary files from builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
+# Set ownership
 USER nextjs
 
-EXPOSE 3000
+# Expose the port
+EXPOSE 80
 
+# Environment variables
+ENV PORT=80
+ENV HOSTNAME=0.0.0.0
+
+# Start the application
 CMD ["node", "server.js"]
