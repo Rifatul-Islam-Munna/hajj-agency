@@ -11,6 +11,20 @@ type DatabaseGlobals = typeof globalThis & {
 const databaseGlobals = globalThis as DatabaseGlobals;
 
 export function getDatabaseConfig() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (databaseUrl) {
+    const url = new URL(databaseUrl);
+    return {
+      host: url.hostname,
+      port: Number(url.port || 3306),
+      user: decodeURIComponent(url.username),
+      password: decodeURIComponent(url.password),
+      database: decodeURIComponent(url.pathname.replace(/^\//, "")),
+      connectionLimit: Math.max(1, Number(process.env.DB_CONNECTION_LIMIT || 2)),
+      maxIdle: Math.max(1, Number(process.env.DB_MAX_IDLE || 1)),
+    };
+  }
+
   return {
     host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
     port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),

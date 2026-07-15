@@ -4,8 +4,7 @@
 2. In CWP terminal/app root:
    `npm install --omit=dev`
    `npm run build`
-3. Set startup file to `server.mjs`.
-   Run command can be `npm start` or `node server.mjs`.
+3. Run command: `npm start`.
 4. Set app URL/domain in `.env`:
    `NEXT_PUBLIC_SITE_URL=https://your-domain.com`
    `SITE_URL=https://your-domain.com`

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "mysql2";
-import { ensureUsersTable, query } from "../../lib/auth-db";
+import { ensureUsersTable, getDatabaseConfig, query } from "../../lib/auth-db";
 import { ensureExtendedCmsStorage } from "../../lib/cms-extension-storage";
 import { ensureCommerceStorage } from "../../lib/commerce-storage";
 
@@ -50,16 +50,18 @@ export async function GET(request: Request) {
     return { paymentSettings: Number(rows[0]?.total) || 0 };
   });
 
+  const dbConfig = getDatabaseConfig();
   const ok = db.ok && auth.ok && cms.ok && commerce.ok;
   return NextResponse.json({
     ok,
     ms: Date.now() - started,
     env: {
       nodeEnv: process.env.NODE_ENV || "",
-      dbHost: present(process.env.DB_HOST || process.env.MYSQL_HOST || process.env.Host),
-      dbPort: process.env.DB_PORT || process.env.MYSQL_PORT || process.env.Port || "3306",
-      dbName: process.env.DB_NAME || process.env.MYSQL_DATABASE || process.env.Database || "",
-      dbUser: process.env.DB_USER || process.env.MYSQL_USER || process.env.Username || "",
+      databaseUrl: process.env.DATABASE_URL ? "set" : "",
+      dbHost: present(dbConfig.host),
+      dbPort: String(dbConfig.port),
+      dbName: dbConfig.database || "",
+      dbUser: dbConfig.user || "",
       siteUrl: process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "",
     },
     checks: { db, auth, cms, commerce },
