@@ -24,7 +24,7 @@ export default async function AboutPage() {
     <CmsPageProvider page={page}>
       <Header />
       <CmsSection sectionKey="banner"><Banner title="About Us" /></CmsSection>
-      <CmsSection sectionKey="about"><About /></CmsSection>
+      <CmsSection sectionKey="about"><About pageSlug="about" /></CmsSection>
       <CmsSection sectionKey="pillars"><Pillars /></CmsSection>
       <CmsSection sectionKey="services"><Services /></CmsSection>
       <CmsSection sectionKey="prayer-time"><PrayerTime /></CmsSection>

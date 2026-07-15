@@ -3,10 +3,25 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import AudioPlayer from "./audioPlayer";
+import type { CmsSection } from "../lib/cms-db";
+import { sanitizeRichHtml } from "../lib/rich-text";
 
 type Track = { title: string; src: string };
+const fallbackDescription = `
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur facilisis sed odio at scelerisque.
+  Sed nec felis pellentesque, lacinia dui sed, ultricies sapien. Pellentesque orci lectus, consectetur vel
+  sollicitudin sed, dignissim eu nisl. Donec id elementum ex.</p>
+  <p>Consectetur adipisicing elit sed eiusmod tempor ncid parrot withdrew less a darn overheard foolish ran forwards.
+  Labore et dolore magna aliqua enim ad minim.</p>
+`;
 
-export default function AboutClient({ audioTracks }: { audioTracks?: Track[] }) {
+export default function AboutClient({ section, audioTracks }: { section?: CmsSection; audioTracks?: Track[] }) {
+  const eyebrow = section?.eyebrow || "About Us";
+  const title = section?.title || "The Jamia is the Most Popular Islamic Center";
+  const description = sanitizeRichHtml(section?.description || fallbackDescription);
+  const buttonText = section?.button_text || "Ask About Islam";
+  const buttonUrl = section?.button_url || "/contact";
+
   return (
     <section className="about-area section-padding">
       <div className="container">
@@ -31,24 +46,15 @@ export default function AboutClient({ audioTracks }: { audioTracks?: Track[] }) 
               viewport={{ once: true }}
             >
               <div className="section-heading mb-30">
-                <span>About Us</span>
-                <h2>The Jamia is the Most Popular Islamic Center</h2>
+                <span data-cms-eyebrow>{eyebrow}</span>
+                <h2 data-cms-title>{title}</h2>
                 <img src="/assets/img/icons/title.svg" alt="Title Icon" />
               </div>
 
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur facilisis sed odio at scelerisque.
-                Sed nec felis pellentesque, lacinia dui sed, ultricies sapien. Pellentesque orci lectus, consectetur vel
-                sollicitudin sed, dignissim eu nisl. Donec id elementum ex.
-              </p>
+              <div data-cms-description className="cms-rich-content" dangerouslySetInnerHTML={{ __html: description }} />
 
-              <p>
-                Consectetur adipisicing elit sed eiusmod tempor ncid parrot withdrew less a darn overheard foolish ran forwards.
-                Labore et dolore magna aliqua enim ad minim.
-              </p>
-
-              <Link href="/contact" className="green_btn mt-3" data-cms-button="true">
-                <span>Ask About Islam</span>
+              <Link href={buttonUrl} className="green_btn mt-3" data-cms-button="true">
+                <span>{buttonText}</span>
               </Link>
             </motion.div>
           </div>

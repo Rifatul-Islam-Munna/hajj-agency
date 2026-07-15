@@ -26,9 +26,9 @@ function parseAudioTracks(value?: string) {
   }
 }
 
-export default async function AboutSection() {
+export default async function AboutSection({ pageSlug = "home" }: { pageSlug?: "home" | "about" } = {}) {
   const [page, records] = await Promise.all([
-    getCmsPage("home").catch(() => null),
+    getCmsPage(pageSlug).catch(() => null),
     getContentRecords({ collection: "audio" }).catch(() => []),
   ]);
   const about = page?.sections.find((section) => section.section_key === "about");
@@ -36,5 +36,5 @@ export default async function AboutSection() {
     .map((item) => ({ title: item.title || "Listen To Quran Audio", src: item.link_url }))
     .filter((track) => track.src.trim());
   const audioTracks = dbTracks.length ? dbTracks : parseAudioTracks(about?.extra_json);
-  return <AboutClient audioTracks={audioTracks} />;
+  return <AboutClient section={about || undefined} audioTracks={audioTracks} />;
 }
