@@ -13,6 +13,7 @@ export async function importSqlDump(sql: string): Promise<ImportResult> {
 
   const statements = splitSqlStatements(normalized)
     .map((statement) => statement.trim())
+    .map(prepareStatement)
     .filter(Boolean)
     .filter((statement) => !isClientCommand(statement));
 
@@ -29,9 +30,20 @@ export async function importSqlDump(sql: string): Promise<ImportResult> {
   });
 
   try {
+    const clearedTables = new Set<string>();
     await connection.query("SET FOREIGN_KEY_CHECKS=0");
     for (const statement of statements) {
+      const targetTable = getInsertTargetTable(statement);
+      if (targetTable && !clearedTables.has(targetTable)) {
+        await clearTable(connection, targetTable);
+        clearedTables.add(targetTable);
+      }
       await connection.query(statement);
+      const createdTable = getCreateTargetTable(statement);
+      if (createdTable && !clearedTables.has(createdTable)) {
+        await clearTable(connection, createdTable);
+        clearedTables.add(createdTable);
+      }
     }
     await connection.query("SET FOREIGN_KEY_CHECKS=1");
   } catch (error) {
@@ -55,6 +67,56 @@ function normalizeDump(sql: string) {
 
 function isClientCommand(statement: string) {
   return /^(SOURCE|TEE|NOTEE|CONNECT|QUIT|DELIMITER)\b/i.test(statement.trim());
+}
+
+function prepareStatement(statement: string) {
+  return statement.replace(
+    /^\s*CREATE\s+TABLE\s+(?!IF\s+NOT\s+EXISTS\b)/i,
+    "CREATE TABLE IF NOT EXISTS ",
+  );
+}
+
+function getInsertTargetTable(statement: string) {
+  const identifier = "(?:`(?:``|[^`])+`|[A-Za-z0-9_$]+)";
+  const match = statement.match(
+    new RegExp(`^\\s*(?:INSERT(?:\\s+IGNORE)?|REPLACE)\\s+INTO\\s+(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
+  );
+
+  if (!match?.[1]) return "";
+  return match[1]
+    .split(".")
+    .map((part) => quoteIdentifier(unquoteIdentifier(part.trim())))
+    .join(".");
+}
+
+function getCreateTargetTable(statement: string) {
+  const identifier = "(?:`(?:``|[^`])+`|[A-Za-z0-9_$]+)";
+  const match = statement.match(
+    new RegExp(`^\\s*CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
+  );
+
+  if (!match?.[1]) return "";
+  return match[1]
+    .split(".")
+    .map((part) => quoteIdentifier(unquoteIdentifier(part.trim())))
+    .join(".");
+}
+
+async function clearTable(connection: mysql.Connection, table: string) {
+  await connection.query(`DELETE FROM ${table}`);
+  await connection.query(`ALTER TABLE ${table} AUTO_INCREMENT = 1`).catch(() => undefined);
+}
+
+function unquoteIdentifier(value: string) {
+  if (value.startsWith("`") && value.endsWith("`")) {
+    return value.slice(1, -1).replace(/``/g, "`");
+  }
+
+  return value;
+}
+
+function quoteIdentifier(value: string) {
+  return `\`${value.replace(/`/g, "``")}\``;
 }
 
 function splitSqlStatements(sql: string) {
