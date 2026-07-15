@@ -10,8 +10,8 @@ type DatabaseGlobals = typeof globalThis & {
 
 const databaseGlobals = globalThis as DatabaseGlobals;
 
-function getPool() {
-  const config = {
+export function getDatabaseConfig() {
+  return {
     host: getEnv("DB_HOST", "MYSQL_HOST", "Host"),
     port: Number(getEnv("DB_PORT", "MYSQL_PORT", "Port") || 3306),
     user: getEnv("DB_USER", "MYSQL_USER", "Username"),
@@ -20,6 +20,10 @@ function getPool() {
     connectionLimit: Math.max(1, Number(process.env.DB_CONNECTION_LIMIT || 2)),
     maxIdle: Math.max(1, Number(process.env.DB_MAX_IDLE || 1)),
   };
+}
+
+function getPool() {
+  const config = getDatabaseConfig();
   const configKey = JSON.stringify(config);
 
   if (databaseGlobals.__hajjMysqlPool && databaseGlobals.__hajjMysqlPoolConfigKey !== configKey) {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getBlogPosts } from "../lib/blog-store";
 import { getBookingOrders } from "../lib/order-store";
 import { getPackages } from "../lib/package-store";
+import SqlImportCard from "./sqlImportCard";
 
 export default async function SuperAdminDashboard() {
   const [packages, posts, orders] = await Promise.all([
@@ -21,5 +22,6 @@ export default async function SuperAdminDashboard() {
       <div className="admin-card"><BookOpenText size={22} /><span>Blog posts</span><div className="admin-stat">{posts.length}</div></div>
     </div>
     <div className="admin-card" style={{ marginTop: 24 }}><h2>Quick actions</h2><div className="admin-actions" style={{ marginTop: 16 }}><Link className="admin-button" href="/super-admin/orders">Manage Orders</Link><Link className="admin-button secondary" href="/super-admin/packages">Manage Packages</Link><Link className="admin-button secondary" href="/super-admin/booking-forms">Booking Forms</Link><Link className="admin-button secondary" href="/super-admin/payments">SSLCommerz</Link><Link className="admin-button secondary" href="/super-admin/content">Website Content</Link></div></div>
+    <div style={{ marginTop: 24 }}><SqlImportCard /></div>
   </>;
 }

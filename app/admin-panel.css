@@ -35,6 +35,7 @@
 .admin-button.secondary { background: #e8efec; color: var(--admin-text); }
 .admin-button.danger { background: #b42318; }
 .admin-button:disabled { opacity: .6; cursor: not-allowed; }
+.sql-import-file input { display: none; }
 .admin-toggle { display: inline-flex !important; align-items: center; gap: 8px; font-weight: 700; }
 .admin-toggle input { width: 18px; height: 18px; flex: 0 0 auto; }
 .admin-notice { padding: 12px 14px; border-radius: 8px; background: #e6f5ef; color: #075e43; }
