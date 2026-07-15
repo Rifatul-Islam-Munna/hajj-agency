@@ -7,6 +7,8 @@ import { getSiteSettings } from "./lib/site-settings";
 import { headerDefaults } from "./layouts/headerDefaults";
 import "./cms.css";
 
+export const dynamic = "force-dynamic";
+
 const lexend = Lexend({
   subsets: ["latin"],
   variable: "--font-lexend",
