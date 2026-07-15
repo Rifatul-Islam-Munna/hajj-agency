@@ -33,17 +33,27 @@ export async function importSqlDump(sql: string): Promise<ImportResult> {
     const clearedTables = new Set<string>();
     await connection.query("SET FOREIGN_KEY_CHECKS=0");
     for (const statement of statements) {
+      const createdTable = getCreateTargetTable(statement);
+      if (createdTable) {
+        try {
+          await connection.query(statement);
+        } catch (error) {
+          const err = error as { code?: string; errno?: number };
+          if (err.code !== "ER_TABLE_EXISTS_ERROR" && err.errno !== 1050) throw error;
+        }
+        if (!clearedTables.has(createdTable)) {
+          await clearTable(connection, createdTable);
+          clearedTables.add(createdTable);
+        }
+        continue;
+      }
+
       const targetTable = getInsertTargetTable(statement);
       if (targetTable && !clearedTables.has(targetTable)) {
         await clearTable(connection, targetTable);
         clearedTables.add(targetTable);
       }
       await connection.query(statement);
-      const createdTable = getCreateTargetTable(statement);
-      if (createdTable && !clearedTables.has(createdTable)) {
-        await clearTable(connection, createdTable);
-        clearedTables.add(createdTable);
-      }
     }
     await connection.query("SET FOREIGN_KEY_CHECKS=1");
   } catch (error) {
@@ -71,15 +81,15 @@ function isClientCommand(statement: string) {
 
 function prepareStatement(statement: string) {
   return statement.replace(
-    /^\s*CREATE\s+TABLE\s+(?!IF\s+NOT\s+EXISTS\b)/i,
-    "CREATE TABLE IF NOT EXISTS ",
+    /^(\s*(?:(?:--[^\n]*|#[^\n]*|\/\*[\s\S]*?\*\/)\s*)*)CREATE\s+TABLE\s+(?!IF\s+NOT\s+EXISTS\b)/i,
+    "$1CREATE TABLE IF NOT EXISTS ",
   );
 }
 
 function getInsertTargetTable(statement: string) {
   const identifier = "(?:`(?:``|[^`])+`|[A-Za-z0-9_$]+)";
   const match = statement.match(
-    new RegExp(`^\\s*(?:INSERT(?:\\s+IGNORE)?|REPLACE)\\s+INTO\\s+(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
+    new RegExp(`^\\s*(?:(?:--[^\\n]*|#[^\\n]*|/\\*[\\s\\S]*?\\*/)\\s*)*(?:INSERT(?:\\s+IGNORE)?|REPLACE)\\s+INTO\\s+(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
   );
 
   if (!match?.[1]) return "";
@@ -92,7 +102,7 @@ function getInsertTargetTable(statement: string) {
 function getCreateTargetTable(statement: string) {
   const identifier = "(?:`(?:``|[^`])+`|[A-Za-z0-9_$]+)";
   const match = statement.match(
-    new RegExp(`^\\s*CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
+    new RegExp(`^\\s*(?:(?:--[^\\n]*|#[^\\n]*|/\\*[\\s\\S]*?\\*/)\\s*)*CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(${identifier}(?:\\s*\\.\\s*${identifier})?)`, "i"),
   );
 
   if (!match?.[1]) return "";
