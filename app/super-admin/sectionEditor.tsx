@@ -57,11 +57,11 @@ export default function SectionEditor({ section, onChange, defaultOpen }: {
           help="Use Enter for a new paragraph, Shift+Enter for a line break, and the toolbar for bold, lists, links and headings."
         />
         <ImageUploadField
-          label={`${section.section_name} image`}
+          label={section.section_key === "testimonials" ? "Testimonials background image" : `${section.section_name} image`}
           value={section.image_url}
           onChange={(image_url) => onChange({ image_url })}
           recommended={recommendedSize(section.section_key)}
-          help={section.section_key === "prayer-time" ? "This image shows on the left side of Today's Prayer Time." : "Images are uploaded directly to ImageBB. The storefront design and image position stay unchanged."}
+          help={section.section_key === "prayer-time" ? "This image shows on the left side of Today's Prayer Time." : section.section_key === "testimonials" ? "Slide/person images are edited in Content Hub > Testimonials." : "Images are uploaded directly to ImageBB. The storefront design and image position stay unchanged."}
         />
         <div className="admin-subsection-title full"><ImageIcon size={17} /> {section.section_key === "packages-grid" ? "Package tabs" : "Button"}</div>
         <Field label="Button text" value={section.button_text} onChange={(button_text) => onChange({ button_text })} />

@@ -93,6 +93,7 @@ export default function ContentManager({ initialRecords }: { initialRecords: Con
 function RecordFields({ item, onChange }: { item: ContentRecord; onChange: (update: Partial<ContentRecord>) => void }) {
   const footer = item.collection_key.startsWith("footer-");
   const audio = item.collection_key === "audio";
+  const testimonial = item.collection_key === "testimonials";
   if (audio) {
     return (
       <div className="admin-fields" style={{ marginTop: 16 }}>
@@ -105,12 +106,12 @@ function RecordFields({ item, onChange }: { item: ContentRecord; onChange: (upda
   }
   return (
     <div className="admin-fields" style={{ marginTop: 16 }}>
-      <Field label={item.collection_key === "faq" ? "Question" : "Title / link text"} value={item.title} onChange={(title) => onChange({ title })} />
+      <Field label={item.collection_key === "faq" ? "Question" : testimonial ? "Right side title" : "Title / link text"} value={item.title} onChange={(title) => onChange({ title })} />
       <Field label="Slug" value={item.slug} onChange={(slug) => onChange({ slug })} />
-      {!footer && <Field label="Subtitle / role" value={item.subtitle} onChange={(subtitle) => onChange({ subtitle })} />}
+      {!footer && <Field label={testimonial ? "Right side small text" : "Subtitle / role"} value={item.subtitle} onChange={(subtitle) => onChange({ subtitle })} />}
       <Field label="Sort order" value={String(item.sort_order)} type="number" onChange={(value) => onChange({ sort_order: Number(value) || 0 })} />
-      {!footer && <RichTextEditor label={item.collection_key === "faq" ? "Answer" : "Description / details"} value={item.content} onChange={(content) => onChange({ content })} help="This content supports paragraphs, line breaks, headings, bold text, lists, quotes and links." />}
-      {!footer && <ImageUploadField label="Main image" value={item.image_url} onChange={(image_url) => onChange({ image_url })} recommended={imageSize(item.collection_key)} />}
+      {!footer && <RichTextEditor label={item.collection_key === "faq" ? "Answer" : testimonial ? "Testimonial quote" : "Description / details"} value={item.content} onChange={(content) => onChange({ content })} help="This content supports paragraphs, line breaks, headings, bold text, lists, quotes and links." />}
+      {!footer && <ImageUploadField label={testimonial ? "Testimonial slider image" : "Main image"} value={item.image_url} onChange={(image_url) => onChange({ image_url })} recommended={imageSize(item.collection_key)} help={testimonial ? "Shows as the big left image and the small round image for this testimonial slide." : undefined} />}
       {item.collection_key === "services" && <ImageUploadField label="Service icon" value={item.icon_url} onChange={(icon_url) => onChange({ icon_url })} recommended="160 × 160 px transparent" />}
       <Field label={footer ? "Link URL" : "Custom link URL"} value={item.link_url} onChange={(link_url) => onChange({ link_url })} help={footer ? "Required for footer links." : "Leave empty to use the connected detail page automatically."} />
       {!footer && <Field label="Link button text" value={item.link_text} onChange={(link_text) => onChange({ link_text })} />}
@@ -126,4 +127,4 @@ function RecordFields({ item, onChange }: { item: ContentRecord; onChange: (upda
 }
 function collectionLabel(value: string) { return collections.find(([key]) => key === value)?.[1] || value; }
 function detailUrl(item: ContentRecord) { return item.link_url || (item.collection_key.startsWith("footer-") || item.collection_key === "faq" || item.collection_key === "testimonials" ? "" : `/content/${item.collection_key}/${item.slug}`); }
-function imageSize(collection: string) { return collection === "guides" ? "800 × 900 px" : collection === "testimonials" ? "400 × 400 px" : collection === "pillars" ? "600 × 600 px" : "900 × 650 px"; }
+function imageSize(collection: string) { return collection === "guides" ? "800 × 900 px" : collection === "testimonials" ? "900 × 700 px" : collection === "pillars" ? "600 × 600 px" : "900 × 650 px"; }
