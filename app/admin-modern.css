@@ -65,3 +65,68 @@
 .order-confirmation-summary > div { padding:14px; background:#f6faf8; border-radius:10px; display:grid; gap:4px; }
 .order-confirmation-summary span { color:#68776f; font-size:12px; }
 @media(max-width:900px){.admin-page-head,.admin-toolbar{align-items:stretch;flex-direction:column}.admin-result-count{margin-left:0}.admin-tier-row,.admin-detail-grid,.admin-status-panel,.admin-content-grid,.admin-answer-grid,.order-confirmation-summary{grid-template-columns:1fr}.admin-tier-row{padding:12px;border:1px solid var(--admin-border);border-radius:10px}.admin-topbar>div:first-child strong{font-size:13px}}
+
+@media(max-width:640px){
+  .admin-page-head,
+  .admin-toolbar {
+    gap: 12px;
+  }
+
+  .admin-toolbar {
+    padding: 12px;
+  }
+
+  .admin-toolbar select,
+  .admin-search {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-table-card,
+  .admin-table-scroll {
+    max-width: 100%;
+  }
+
+  .admin-table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-table {
+    min-width: 720px;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 12px 10px;
+  }
+
+  .admin-table-primary {
+    min-width: 190px;
+  }
+
+  .admin-row-actions {
+    flex-wrap: wrap;
+  }
+
+  .admin-tier-header {
+    display: none;
+  }
+
+  .admin-summary-list > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .admin-content-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .admin-status-panel > div,
+  .admin-answer-grid > div,
+  .order-confirmation-summary > div {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
