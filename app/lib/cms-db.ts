@@ -1,0 +1,22 @@
+import { ensureCmsStorage } from "./cms-storage";
+
+export type { BlogPost, CmsPage, CmsSection, ContactSubmission, ContentRecord, NavItem, PackageRecord, PublicSiteSettings, SiteSettings } from "./cms-types";
+export { getCmsPage, getCmsPages, saveCmsPage } from "./cms-pages-store";
+export { deletePackage, getPackageBySlug, getPackages, savePackage } from "./package-store";
+export { deleteBlogPost, getBlogPostBySlug, getBlogPosts, saveBlogPost } from "./blog-store";
+export { deleteContentRecord, getContentRecord, getContentRecords, saveContentRecord } from "./content-store";
+export { createContactSubmission, deleteContactSubmission, getContactSubmissions, updateContactSubmission } from "./contact-store";
+export { getPublicSiteSettings, getSiteSettings, saveSiteSettings } from "./site-settings";
+
+type CmsDbGlobals = typeof globalThis & {
+  __hajjCmsInitStarted?: boolean;
+};
+
+const cmsDbGlobals = globalThis as CmsDbGlobals;
+
+export function initCmsDatabaseOnce() {
+  if (cmsDbGlobals.__hajjCmsInitStarted) return;
+  cmsDbGlobals.__hajjCmsInitStarted = true;
+  ensureCmsStorage().catch((error) => console.error("CMS database init failed", error));
+}
+export const ensureCmsDatabase = ensureCmsStorage;

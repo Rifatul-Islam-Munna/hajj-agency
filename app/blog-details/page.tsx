@@ -1,15 +1,5 @@
-import Header from "../layouts/header1";
-import Banner from '../components/banner';
-import BlogDetails from '../template-parts/blogDetails';
-import Footer from "../layouts/footer";
+import { redirect } from "next/navigation";
 
-export default function Home2() {
-  return (
-    <>
-    <Header/>
-    <Banner title="Blog Details" />
-    <BlogDetails/>
-    <Footer/>
-    </>
-  )
+export default function LegacyBlogDetailsPage() {
+  redirect("/blog");
 }

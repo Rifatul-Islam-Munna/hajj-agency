@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { ResultSetHeader } from "mysql2";
-import { hashPassword, query } from "@/app/lib/auth-db";
+import { authQuery, hashPassword } from "@/app/lib/auth-db";
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Password min 6 chars" }, { status: 400 });
     }
 
-    await query<ResultSetHeader>(
+    await authQuery<ResultSetHeader>(
       `INSERT INTO users (nid_number, nid_name, date_of_birth, phone, email, password_hash)
        VALUES (?, ?, ?, ?, ?, ?)`,
       [nidNumber, nidName, dateOfBirth, phone, email, hashPassword(password)],

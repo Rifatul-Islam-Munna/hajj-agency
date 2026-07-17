@@ -1,15 +1,15 @@
 import Header from "../layouts/header2";
-import Banner from '../components/banner';
-import CourseDetails from "../template-parts/courseDetails";
+import Banner from "../components/banner";
+import Packages from "../components/packages";
 import Footer from "../layouts/footer";
 
-export default function Home2() {
+export default function PackagesArchive() {
   return (
     <>
-    <Header/>
-    <Banner title="Course Details" />
-    <CourseDetails/>
-    <Footer/>
+      <Header />
+      <Banner title="Packages" />
+      <Packages featuredOnly={false} />
+      <Footer />
     </>
-  )
+  );
 }

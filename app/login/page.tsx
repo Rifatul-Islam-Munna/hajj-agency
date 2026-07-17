@@ -1,13 +1,19 @@
 import Header from "../layouts/header1";
-import Login from '../template-parts/login';
+import LoginBoundary from "../components/loginBoundary";
 import Footer from "../layouts/footer";
+import { CmsPageProvider, CmsSection } from "../components/cmsPage";
+import { getCmsPage } from "../lib/cms-db";
+import { cmsMetadata } from "../lib/cms-metadata";
 
-export default function Home2() {
+export const generateMetadata = () => cmsMetadata("login", "Login", "Sign in to your account.");
+
+export default async function LoginPage() {
+  const page = await getCmsPage("login").catch(() => null);
   return (
-    <>
-    <Header/>
-    <Login/>
-    <Footer/>
-    </>
-  )
+    <CmsPageProvider page={page}>
+      <Header />
+      <CmsSection sectionKey="login"><LoginBoundary /></CmsSection>
+      <Footer />
+    </CmsPageProvider>
+  );
 }

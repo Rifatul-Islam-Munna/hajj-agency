@@ -1,27 +1,37 @@
 import Header from "../layouts/header1";
-import Banner from '../components/banner';
+import Banner from "../components/banner";
 import About from "../components/about";
 import Pillars from "../components/pillars";
-import Services from '../components/services';
-import PrayerTime from '../components/prayerTime';
-import Scollars from '../components/scholars';
-import CounterUp from '../components/counterUp';
+import Services from "../components/services";
+import PrayerTime from "../components/prayerTime";
+import Scholars from "../components/scholars";
+import CounterUp from "../components/counterUp";
 import Testimonials from "../components/testimonials";
 import Footer from "../layouts/footer";
+import { CmsPageProvider, CmsSection } from "../components/cmsPage";
+import { getCmsPage } from "../lib/cms-db";
+import { cmsMetadata } from "../lib/cms-metadata";
 
-export default function Home2() {
+export const generateMetadata = () => cmsMetadata(
+  "about",
+  "About Us",
+  "Learn about our pilgrimage travel services.",
+);
+
+export default async function AboutPage() {
+  const page = await getCmsPage("about").catch(() => null);
   return (
-    <>
-    <Header/>
-    <Banner title="About Us" />
-    <About/>
-    <Pillars/>
-    <Services/>
-    <PrayerTime/>
-    <Scollars/>
-    <CounterUp/>
-    <Testimonials/>
-    <Footer/>
-    </>
-  )
+    <CmsPageProvider page={page}>
+      <Header />
+      <CmsSection sectionKey="banner"><Banner title="About Us" /></CmsSection>
+      <CmsSection sectionKey="about"><About pageSlug="about" /></CmsSection>
+      <CmsSection sectionKey="pillars"><Pillars /></CmsSection>
+      <CmsSection sectionKey="services"><Services /></CmsSection>
+      <CmsSection sectionKey="prayer-time"><PrayerTime /></CmsSection>
+      <CmsSection sectionKey="scholars"><Scholars /></CmsSection>
+      <CmsSection sectionKey="counter"><CounterUp /></CmsSection>
+      <CmsSection sectionKey="testimonials"><Testimonials /></CmsSection>
+      <Footer />
+    </CmsPageProvider>
+  );
 }
